@@ -1,2 +1,2 @@
 # CPPaxos
-Paxos rewritten in C++
+Paxos, rewritten in C++
