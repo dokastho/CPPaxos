@@ -4,7 +4,7 @@
 
 int main()
 {
-    Paxos p("output.out");
+    Paxos p(0, "output.out");
     assert(1);
     std::cout << "passed" << std::endl;
     return 0;

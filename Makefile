@@ -25,6 +25,9 @@ debug: clean all
 # highest target; sews together all objects into executable
 all: $(LIB) test_basic
 
+final: clean all
+	ln -f $(LIB) $(SO_PATH)
+
 $(LIB): $(OBJECTS)
 	$(CXX)  $(CXXFLAGS) $(OBJECTS)  -o  $(LIB)  -shared
 

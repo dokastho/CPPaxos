@@ -50,6 +50,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# My consistent ignores
 test_server
 test_basic
 test_many
@@ -58,3 +60,6 @@ test_unreliable
 test_performance
 .pytest_cache/*
 __pycache__/*
+
+# My ignores for this folder only
+drpc.h
