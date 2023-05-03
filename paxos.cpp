@@ -51,9 +51,142 @@ error Paxos::Accept(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply) {}
 
 error Paxos::Learn(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply) {}
 
-std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v) {}
+std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
+{
+    // get peers from state
+    std::vector<std::string> peers_l = get_peers();
+    size_t n_peers = peers_l.size();
 
-std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int n, interface v, std::vector<PrepareReply> &p_replies) {}
+    int goal = n_peers / 2 + 1;
+    int affirms = 0;
+
+    // request content & replies vector
+    std::vector<PrepareReply> replies;
+
+    for (size_t p = 0; p < n_peers; p++)
+    {
+        if ((goal - affirms) > (n_peers - p))
+        {
+            break;
+        }
+
+        PrepareArgs args{
+            seq,
+            n,
+            v,
+            get_max_seq(),
+            "",
+            get_max_done()};
+        strcpy(args.identity, whoami().c_str());
+        PrepareReply reply;
+        rpc_arg_wrapper req;
+        rpc_arg_wrapper rep;
+        req.args = &args;
+        req.len = sizeof(PrepareArgs);
+        rep.args = &rep;
+        rep.len = sizeof(PrepareReply);
+
+        if (p == me)
+        {
+            Prepare(this, &req, &rep);
+        }
+        else
+        {
+            drpc_client c;
+            drpc_host h{peers_l[p], PAXOS_PORT};
+            c.Call(h, "Prepare", &req, &rep);
+        }
+        // save reply
+        replies.push_back(reply);
+        if (affirms == goal)
+        {
+            break;
+        }
+    }
+
+    return replies;
+}
+
+std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int n, interface v, std::vector<PrepareReply> &p_replies)
+{
+    int max_n_a = 0;
+    interface v_prime = v;
+
+    std::string whoiam = whoami();
+
+    // find max n_a, set v_prime if one found
+    for (PrepareReply reply : p_replies)
+    {
+        if (!reply.valid)
+        {
+            continue;
+        }
+        if (reply.n_a >= max_n_a)
+        {
+            max_n_a = reply.n_a;
+            v_prime = reply.v_a;
+        }
+    }
+
+    // get peers from state
+    std::vector<std::string> peers_l = get_peers();
+    size_t n_peers = peers_l.size();
+
+    int goal = n_peers / 2 + 1;
+    int affirms = 0;
+
+    // request content & replies vector
+    std::vector<AcceptReply> replies;
+
+    for (size_t p = 0; p < n_peers; p++)
+    {
+        if ((goal - affirms) > (n_peers - p))
+        {
+            break;
+        }
+        AcceptArgs args{
+            seq,
+            n,
+            v_prime,
+            get_max_seq(),
+            "",
+            get_max_done()};
+        strcpy(args.identity, whoami().c_str());
+        AcceptReply reply;
+        rpc_arg_wrapper req;
+        rpc_arg_wrapper rep;
+        req.args = &args;
+        req.len = sizeof(AcceptArgs);
+        rep.args = &rep;
+        rep.len = sizeof(AcceptReply);
+
+        if (p == me)
+        {
+            Accept(this, &req, &rep);
+        }
+        else
+        {
+            drpc_client c;
+            drpc_host h{peers_l[p], PAXOS_PORT};
+            c.Call(h, "Accept", &req, &rep);
+        }
+
+        // efficiency
+        if (reply.res == OK)
+        {
+            affirms++;
+        }
+
+        // save reply
+        replies.push_back(reply);
+        if (affirms == goal)
+        {
+            break;
+        }
+    }
+
+    return {replies, v_prime};
+}
 
 std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
 {
@@ -95,6 +228,7 @@ std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
         // save reply
         replies.push_back(reply);
     }
+    return replies;
 }
 
 void Paxos::update_min()
