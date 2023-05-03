@@ -1,4 +1,5 @@
 #include <thread>
+#include <string.h>
 
 #include "paxos.h"
 
@@ -8,10 +9,14 @@ Paxos::Paxos(int my_index, std::string log_filename) : me(my_index)
 
     drpc_host my_host{
         "localhost",
-        8022};
+        PAXOS_PORT};
     drpc_engine = new drpc_server(my_host, this);
 
-    max_done = -1;
+    // register RPC functions
+    drpc_engine->publish_endpoint("Prepare", (void *)this->Prepare);
+    drpc_engine->publish_endpoint("Accept", (void *)this->Accept);
+    drpc_engine->publish_endpoint("Learn", (void *)this->Learn);
+
     std::thread t(&drpc_server::run_server, drpc_engine);
     t.detach();
 
@@ -40,17 +45,57 @@ int Paxos::Min() {}
 
 std::pair<Fate, interface> Paxos::Status(int seq) {}
 
-error Paxos::Prepare(PrepareArgs *args, PrepareReply *reply) {}
+error Paxos::Prepare(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply) {}
 
-error Paxos::Accept(AcceptArgs *args, AcceptReply *reply) {}
+error Paxos::Accept(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply) {}
 
-error Paxos::Learn(DecidedArgs *args, DecidedReply *reply) {}
+error Paxos::Learn(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply) {}
 
 std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v) {}
 
 std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int n, interface v, std::vector<PrepareReply> &p_replies) {}
 
-std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v) {}
+std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
+{
+    // get peers from state
+    std::vector<std::string> peers_l = get_peers();
+    size_t n_peers = peers_l.size();
+
+    // request content & replies vector
+    std::vector<DecidedReply> replies;
+
+    for (size_t p = 0; p < n_peers; p++)
+    {
+        DecidedArgs args{
+            seq,
+            n,
+            v,
+            get_max_seq(),
+            "",
+            get_max_done()};
+        strcpy(args.identity, whoami().c_str());
+        DecidedReply reply;
+        rpc_arg_wrapper req;
+        rpc_arg_wrapper rep;
+        req.args = &args;
+        req.len = sizeof(DecidedArgs);
+        rep.args = &rep;
+        rep.len = sizeof(DecidedReply);
+
+        if (p == me)
+        {
+            Learn(this, &req, &rep);
+        }
+        else
+        {
+            drpc_client c;
+            drpc_host h{peers_l[p], PAXOS_PORT};
+            c.Call(h, "Learn", &req, &rep);
+        }
+        // save reply
+        replies.push_back(reply);
+    }
+}
 
 void Paxos::update_min()
 {

@@ -10,6 +10,7 @@
 #include "Logger.h"
 #include "drpc.h"
 
+#define PAXOS_PORT 8024
 #define nil ""
 #define prepare "Prepare"
 #define accept "Accept"
@@ -50,9 +51,9 @@ public:
     int Max();
     int Min();
     std::pair<Fate, interface> Status(int);
-    error Prepare(PrepareArgs *, PrepareReply *);
-    error Accept(AcceptArgs *, AcceptReply *);
-    error Learn(DecidedArgs *, DecidedReply *);
+    static error Prepare(Paxos *px, rpc_arg_wrapper *, rpc_arg_wrapper *);
+    static error Accept(Paxos *px, rpc_arg_wrapper *, rpc_arg_wrapper *);
+    static error Learn(Paxos *px, rpc_arg_wrapper *, rpc_arg_wrapper *);
 
 private:
     std::vector<PrepareReply> prepare_phase(int, int, interface);
@@ -67,11 +68,11 @@ private:
     void set_max_seq(int);
     int get_max_done();
     void set_max_done(int);
-    bool did_majority_accept(std::vector<std::string>&);
+    bool did_majority_accept(std::vector<std::string> &);
     std::pair<instance_t, bool> read_slot(int);
     std::string whoami();
     void update_max_seq(int);
-    bool do_accept_phase(int, std::vector<PrepareReply>&);
+    bool do_accept_phase(int, std::vector<PrepareReply> &);
 };
 
 #endif
