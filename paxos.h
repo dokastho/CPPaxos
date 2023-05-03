@@ -40,7 +40,7 @@ private:
     int max_done;
     int max_n;
     int paxos_min;
-    std::mutex set_sync;
+    std::mutex set_sync, mu;
 
 public:
     Paxos(int, std::string);
