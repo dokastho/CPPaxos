@@ -77,7 +77,7 @@ private:
     std::string whoami();
     void update_max_seq(int);
     bool do_accept_phase(int, std::vector<PrepareReply> &);
-    instance_t rpc_inst_init(int seq, bool p_phase);
+    instance_t rpc_inst_init(int);
 };
 
 #endif

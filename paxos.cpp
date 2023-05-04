@@ -35,7 +35,86 @@ Paxos::~Paxos()
     drpc_engine->kill();
 }
 
-void Paxos::Start(int seq, interface v) {}
+void Paxos::Start(int seq, interface v)
+{
+    bool majority_accept, zero_replies, retry;
+    std::vector<int> statuses;
+
+    update_max_seq(seq);
+
+    int n = get_max_n();
+    while (true)
+    {
+        if (retry)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            retry = false;
+        }
+        n++;
+
+        auto p_replies = prepare_phase(seq, n, v);
+
+        statuses.clear();
+        for (PrepareReply vx : p_replies)
+        {
+            statuses.push_back(vx.res);
+            update_peer_max(vx.id_index, vx.max_done);
+            update_max_seq(vx.max_seq);
+        }
+
+        // garbage collection step
+        update_min();
+
+        majority_accept = did_majority_accept(statuses);
+        zero_replies = p_replies.empty();
+
+        // majority did not accept
+        // forget?
+        if (!majority_accept && !zero_replies)
+        {
+            retry = true;
+            continue;
+        }
+
+        bool do_accept = do_accept_phase(n, p_replies);
+
+        if (do_accept)
+        {
+            // start accept phase
+            auto ret = accept_phase(seq, n, v, p_replies);
+            auto a_replies = ret.first;
+
+            statuses.clear();
+            // get status from each reply
+            for (AcceptReply vx : a_replies)
+            {
+                statuses.push_back(vx.res);
+                update_peer_max(vx.id_index, vx.max_done);
+                update_max_seq(vx.max_seq);
+            }
+
+            // garbage collection step
+            update_min();
+
+            majority_accept = did_majority_accept(statuses);
+            zero_replies = a_replies.empty();
+
+            // majority did not accept
+            // forget?
+            if (!majority_accept && !zero_replies)
+            {
+                retry = true;
+                continue;
+            }
+        }
+
+        learn_phase(seq, n, v);
+
+        // garbage collection step
+        update_min();
+        break;
+    }
+}
 
 void Paxos::Done(int seq)
 {

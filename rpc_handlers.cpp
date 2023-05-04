@@ -21,7 +21,7 @@ error Paxos::Prepare(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
 
     px->mu.lock();
 
-    instance_t datum = px->rpc_inst_init(p->seq, true);
+    instance_t datum = px->rpc_inst_init(p->seq);
 
     if (p->n > datum.n_p)
     {
@@ -60,7 +60,7 @@ error Paxos::Accept(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
     r->id_index = px->me;
 
     px->mu.lock();
-    instance_t datum = px->rpc_inst_init(p->seq, false);
+    instance_t datum = px->rpc_inst_init(p->seq);
 
     if (p->n > datum.n_p)
     {
@@ -92,7 +92,7 @@ error Paxos::Learn(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
 
     px->mu.lock();
 
-    instance_t datum = px->rpc_inst_init(p->seq, false);
+    instance_t datum = px->rpc_inst_init(p->seq);
 
     // update log
     datum.status = Decided;
@@ -112,7 +112,7 @@ error Paxos::Learn(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
     return nil;
 }
 
-instance_t Paxos::rpc_inst_init(int seq, bool p_phase)
+instance_t Paxos::rpc_inst_init(int seq)
 {
     instance_t datum{
         Pending,
