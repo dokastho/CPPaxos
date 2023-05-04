@@ -1,10 +1,8 @@
 #ifndef PAXOS_RPCS_H
 #define PAXOS_RPCS_H
 
-#define OK "OK"
-#define Reject "Reject"
-#define ID_LEN 16
-#define RES_LEN 16
+#define OK 0
+#define Reject 1
 
 struct PrepareArgs
 {
@@ -12,18 +10,18 @@ struct PrepareArgs
     int n;
     void *v;
     int max_seq;
-    char identity[ID_LEN];
+    int id_index;
     int max_done;
 };
 
 struct PrepareReply
 {
-    char res[RES_LEN];
+    int res;
     int seq;
     int n_a;
     void* v_a;
     int max_seq;
-    char identity[ID_LEN];
+    int id_index;
     int max_done;
     bool valid;
 };
@@ -34,17 +32,17 @@ struct AcceptArgs
     int n;
     void *v;
     int max_seq;
-    char identity[ID_LEN];
+    int id_index;
     int max_done;
 };
 
 struct AcceptReply
 {
-    char res[RES_LEN];
+    int res;
     int seq;
     int n;
     int max_seq;
-    char identity[ID_LEN];
+    int id_index;
     int max_done;
 };
 
@@ -54,17 +52,17 @@ struct DecidedArgs
     int n;
     void *v;
     int max_seq;
-    char identity[ID_LEN];
+    int id_index;
     int max_done;
 };
 
 struct DecidedReply
 {
-    char res[RES_LEN];
+    int res;
     int n;
     void *v;
     int max_seq;
-    char identity[ID_LEN];
+    int id_index;
     int max_done;
 };
 

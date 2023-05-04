@@ -83,12 +83,6 @@ std::pair<Fate, interface> Paxos::Status(int seq)
     }
 }
 
-error Paxos::Prepare(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply) {}
-
-error Paxos::Accept(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply) {}
-
-error Paxos::Learn(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply) {}
-
 std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
 {
     // get peers from state
@@ -113,9 +107,8 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
             n,
             v,
             get_max_seq(),
-            "",
+            me,
             get_max_done()};
-        strcpy(args.identity, whoami().c_str());
         PrepareReply reply;
         rpc_arg_wrapper req;
         rpc_arg_wrapper rep;
@@ -187,9 +180,8 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
             n,
             v_prime,
             get_max_seq(),
-            "",
+            me,
             get_max_done()};
-        strcpy(args.identity, whoami().c_str());
         AcceptReply reply;
         rpc_arg_wrapper req;
         rpc_arg_wrapper rep;
@@ -242,9 +234,8 @@ std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
             n,
             v,
             get_max_seq(),
-            "",
+            me,
             get_max_done()};
-        strcpy(args.identity, whoami().c_str());
         DecidedReply reply;
         rpc_arg_wrapper req;
         rpc_arg_wrapper rep;
@@ -291,9 +282,10 @@ void Paxos::update_min()
     mu.unlock();
 }
 
-void Paxos::update_peer_max(std::string peer, int max_done)
+void Paxos::update_peer_max(int peer_idx, int max_done)
 {
     mu.lock();
+    std::string peer = peers[peer_idx];
     if (peer_max_done[peer] < max_done)
     {
         peer_max_done[peer] = max_done;
@@ -366,13 +358,13 @@ void Paxos::set_max_done(int val)
     mu.unlock();
 }
 
-bool Paxos::did_majority_accept(std::vector<std::string> &replies)
+bool Paxos::did_majority_accept(std::vector<int> &replies)
 {
     std::vector<std::string> peers_l = get_peers();
     int goal = peers_l.size() / 2 + 1;
     int affirms = 0;
 
-    for (std::string rep : replies)
+    for (int rep : replies)
     {
         if (rep == OK)
         {

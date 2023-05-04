@@ -64,7 +64,7 @@ private:
     std::pair<std::vector<AcceptReply>, interface> accept_phase(int, int, interface, std::vector<PrepareReply> &);
     std::vector<DecidedReply> learn_phase(int, int, interface);
     void update_min();
-    void update_peer_max(std::string, int);
+    void update_peer_max(int, int);
     int get_max_n();
     std::vector<std::string> get_peers();
     int get_paxos_min();
@@ -72,11 +72,12 @@ private:
     void set_max_seq(int);
     int get_max_done();
     void set_max_done(int);
-    bool did_majority_accept(std::vector<std::string> &);
+    bool did_majority_accept(std::vector<int> &);
     std::pair<instance_t, bool> read_slot(int);
     std::string whoami();
     void update_max_seq(int);
     bool do_accept_phase(int, std::vector<PrepareReply> &);
+    instance_t rpc_inst_init(int seq, bool p_phase);
 };
 
 #endif
