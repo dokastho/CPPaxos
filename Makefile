@@ -15,7 +15,7 @@ LIB = paxos.so
 RPC_LIB = drpc.so
 
 #Default Flags
-CXXFLAGS = -std=c++14# -Wconversion -Wall -Werror -Wextra -pedantic
+CXXFLAGS = -std=c++14 -Wconversion -Wall -Werror -Wextra -pedantic
 
 # make debug - will compile "all" with $(CXXFLAGS) and the -g flag
 #              also defines DEBUG so that "#ifdef DEBUG /*...*/ #endif" works

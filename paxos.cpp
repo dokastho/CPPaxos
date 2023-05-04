@@ -89,7 +89,7 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
     std::vector<std::string> peers_l = get_peers();
     size_t n_peers = peers_l.size();
 
-    int goal = n_peers / 2 + 1;
+    int goal = (int)n_peers / 2 + 1;
     int affirms = 0;
 
     // request content & replies vector
@@ -97,7 +97,7 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
 
     for (size_t p = 0; p < n_peers; p++)
     {
-        if ((goal - affirms) > (n_peers - p))
+        if ((goal - affirms) > (int)(n_peers - p))
         {
             break;
         }
@@ -117,7 +117,7 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
         rep.args = &rep;
         rep.len = sizeof(PrepareReply);
 
-        if (p == me)
+        if ((int)p == me)
         {
             Prepare(this, &req, &rep);
         }
@@ -163,7 +163,7 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
     std::vector<std::string> peers_l = get_peers();
     size_t n_peers = peers_l.size();
 
-    int goal = n_peers / 2 + 1;
+    int goal = (int)n_peers / 2 + 1;
     int affirms = 0;
 
     // request content & replies vector
@@ -171,7 +171,7 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
 
     for (size_t p = 0; p < n_peers; p++)
     {
-        if ((goal - affirms) > (n_peers - p))
+        if ((goal - affirms) > (int)(n_peers - p))
         {
             break;
         }
@@ -190,7 +190,7 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
         rep.args = &rep;
         rep.len = sizeof(AcceptReply);
 
-        if (p == me)
+        if ((int)p == me)
         {
             Accept(this, &req, &rep);
         }
@@ -244,7 +244,7 @@ std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
         rep.args = &rep;
         rep.len = sizeof(DecidedReply);
 
-        if (p == me)
+        if ((int)p == me)
         {
             Learn(this, &req, &rep);
         }
@@ -361,7 +361,7 @@ void Paxos::set_max_done(int val)
 bool Paxos::did_majority_accept(std::vector<int> &replies)
 {
     std::vector<std::string> peers_l = get_peers();
-    int goal = peers_l.size() / 2 + 1;
+    int goal = (int)peers_l.size() / 2 + 1;
     int affirms = 0;
 
     for (int rep : replies)
