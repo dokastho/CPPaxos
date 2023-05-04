@@ -37,13 +37,51 @@ Paxos::~Paxos()
 
 void Paxos::Start(int seq, interface v) {}
 
-void Paxos::Done(int seq) {}
+void Paxos::Done(int seq)
+{
+    if (seq > get_max_done())
+    {
+        set_max_done(seq);
+    }
+    update_min();
+}
 
-int Paxos::Max() {}
+int Paxos::Max()
+{
+    return get_max_done();
+}
 
-int Paxos::Min() {}
+int Paxos::Min()
+{
+    update_min();
+    return get_paxos_min() + 1;
+}
 
-std::pair<Fate, interface> Paxos::Status(int seq) {}
+std::pair<Fate, interface> Paxos::Status(int seq)
+{
+    if (seq < get_paxos_min())
+    {
+        return {Forgotten, nullptr};
+    }
+    else if (seq > get_max_seq())
+    {
+        return {Forgotten, nullptr};
+    }
+    else
+    {
+        auto item = read_slot(seq);
+        bool ok = item.second;
+        instance_t val = item.first;
+        if (ok)
+        {
+            return {val.status, val.v_a};
+        }
+        else
+        {
+            return {Forgotten, nullptr};
+        }
+    }
+}
 
 error Paxos::Prepare(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply) {}
 

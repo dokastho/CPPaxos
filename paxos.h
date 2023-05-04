@@ -20,6 +20,10 @@ typedef std::string error;
 typedef int Fate;
 typedef void *interface;
 
+const Fate Decided = 0;
+const Fate Pending = 1;
+const Fate Forgotten = 2;
+
 struct instance_t
 {
     Fate status;
