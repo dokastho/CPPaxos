@@ -6,6 +6,7 @@ void Paxos::Prepare(Paxos *px, drpc_msg &m)
     PrepareReply *r = (PrepareReply *)m.rep->args;
 
     px->set_sync.lock();
+    if (px->deaf) return;
 
     px->update_peer_max(p->id_index, p->max_done);
     px->update_max_seq(p->seq);
@@ -49,6 +50,7 @@ void Paxos::Accept(Paxos *px, drpc_msg &m)
     AcceptReply *r = (AcceptReply *)m.rep->args;
 
     px->set_sync.lock();
+    if (px->deaf) return;
 
     px->update_peer_max(p->id_index, p->max_done);
     px->update_max_seq(p->seq);
@@ -84,6 +86,7 @@ void Paxos::Learn(Paxos *px, drpc_msg &m)
     DecidedReply *r = (DecidedReply *)m.rep->args;
 
     px->set_sync.lock();
+    if (px->deaf) return;
 
     px->update_peer_max(p->id_index, p->max_done);
     px->update_max_seq(p->seq);

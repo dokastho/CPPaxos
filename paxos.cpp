@@ -7,6 +7,7 @@ Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &pee
 {
     logger = new Logger(log_filename);
     peers = peers_arg;
+    deaf = false;
 
     drpc_host my_host = peers[me];
     drpc_engine = new drpc_server(my_host, this);
@@ -32,6 +33,13 @@ Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &pee
 Paxos::~Paxos()
 {
     drpc_engine->kill();
+}
+
+void Paxos::Deafen()
+{
+    set_sync.lock();
+    deaf = true;
+    set_sync.unlock();
 }
 
 void Paxos::Start(int seq, interface v)

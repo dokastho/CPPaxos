@@ -8,8 +8,8 @@
 #include <sstream>
 #include "paxos.h"
 
-typedef std::chrono::milliseconds ms;
-typedef std::chrono::seconds s;
+typedef std::chrono::milliseconds MS;
+typedef std::chrono::seconds S;
 
 class Testing
 {
@@ -39,6 +39,12 @@ public:
         {
             delete pxa[i];
         }
+    }
+
+    template<typename T>
+    void Sleep(T d)
+    {
+        std::this_thread::sleep_for(d);
     }
 
     int ndecided(int seq, std::vector<interface> wantedvals)
@@ -83,17 +89,17 @@ public:
 
     void waitn(int seq, int wanted, std::vector<interface> wantedvals)
     {
-        ms to(10);
+        MS to(10);
         for (size_t i = 0; i < 30; i++)
         {
             if (ndecided(seq, wantedvals) >= wanted)
             {
                 break;
             }
-            std::this_thread::sleep_for(to);
+            Sleep(to);
 
             // exponential backoff <1s
-            if (to < s(1))
+            if (to < S(1))
             {
                 to *= 2;
             }

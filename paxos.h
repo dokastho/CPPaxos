@@ -44,6 +44,7 @@ private:
     int max_n;
     int paxos_min;
     std::mutex set_sync, mu;
+    bool deaf;
 
 public:
     Paxos(int, std::string, std::vector<drpc_host> &);
@@ -52,6 +53,8 @@ public:
     void Done(int);
     int Max();
     int Min();
+    // for testing only
+    void Deafen();
     std::pair<Fate, interface> Status(int);
     std::string whoami();
     static void Prepare(Paxos *, drpc_msg &);
