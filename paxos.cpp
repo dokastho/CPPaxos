@@ -126,7 +126,7 @@ void Paxos::Done(int seq)
 
 int Paxos::Max()
 {
-    return get_max_done();
+    return get_max_seq();
 }
 
 int Paxos::Min()

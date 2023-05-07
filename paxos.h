@@ -53,6 +53,7 @@ public:
     int Max();
     int Min();
     std::pair<Fate, interface> Status(int);
+    std::string whoami();
     static void Prepare(Paxos *, drpc_msg &);
     static void Accept(Paxos *, drpc_msg &);
     static void Learn(Paxos *, drpc_msg &);
@@ -71,7 +72,6 @@ private:
     void set_max_done(int);
     bool did_majority_accept(std::vector<int> &);
     std::pair<instance_t, bool> read_slot(int);
-    std::string whoami();
     void update_max_seq(int);
     bool do_accept_phase(int, std::vector<PrepareReply> &);
     instance_t rpc_inst_init(int);
