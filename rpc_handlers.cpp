@@ -1,9 +1,9 @@
 #include "paxos.h"
 
-error Paxos::Prepare(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
+void Paxos::Prepare(Paxos *px, drpc_msg &m)
 {
-    PrepareArgs *p = (PrepareArgs *)args->args;
-    PrepareReply *r = (PrepareReply *)reply->args;
+    PrepareArgs *p = (PrepareArgs *)m.req->args;
+    PrepareReply *r = (PrepareReply *)m.rep->args;
 
     px->set_sync.lock();
 
@@ -41,13 +41,12 @@ error Paxos::Prepare(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
     px->mu.unlock();
 
     px->set_sync.unlock();
-    return nil;
 }
 
-error Paxos::Accept(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
+void Paxos::Accept(Paxos *px, drpc_msg &m)
 {
-    AcceptArgs *p = (AcceptArgs *)args->args;
-    AcceptReply *r = (AcceptReply *)reply->args;
+    AcceptArgs *p = (AcceptArgs *)m.req->args;
+    AcceptReply *r = (AcceptReply *)m.rep->args;
 
     px->set_sync.lock();
 
@@ -62,7 +61,7 @@ error Paxos::Accept(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
     px->mu.lock();
     instance_t datum = px->rpc_inst_init(p->seq);
 
-    if (p->n > datum.n_p)
+    if (p->n >= datum.n_p)
     {
         // update state
         datum.n_a = p->n;
@@ -77,13 +76,12 @@ error Paxos::Accept(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
     px->mu.unlock();
 
     px->set_sync.unlock();
-    return nil;
 }
 
-error Paxos::Learn(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
+void Paxos::Learn(Paxos *px, drpc_msg &m)
 {
-    DecidedArgs *p = (DecidedArgs *)args->args;
-    DecidedReply *r = (DecidedReply *)reply->args;
+    DecidedArgs *p = (DecidedArgs *)m.req->args;
+    DecidedReply *r = (DecidedReply *)m.rep->args;
 
     px->set_sync.lock();
 
@@ -109,7 +107,6 @@ error Paxos::Learn(Paxos *px, rpc_arg_wrapper *args, rpc_arg_wrapper *reply)
     px->mu.unlock();
 
     px->set_sync.unlock();
-    return nil;
 }
 
 instance_t Paxos::rpc_inst_init(int seq)

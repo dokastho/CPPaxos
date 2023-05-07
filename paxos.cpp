@@ -3,19 +3,18 @@
 
 #include "paxos.h"
 
-Paxos::Paxos(int my_index, std::string log_filename) : me(my_index)
+Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &peers_arg) : me(my_index)
 {
     logger = new Logger(log_filename);
+    peers = peers_arg;
 
-    drpc_host my_host{
-        "localhost",
-        PAXOS_PORT};
+    drpc_host my_host = peers[me];
     drpc_engine = new drpc_server(my_host, this);
 
     // register RPC functions
-    drpc_engine->publish_endpoint("Prepare", (void *)this->Prepare);
-    drpc_engine->publish_endpoint("Accept", (void *)this->Accept);
-    drpc_engine->publish_endpoint("Learn", (void *)this->Learn);
+    drpc_engine->publish_endpoint("Prepare", (void *)Paxos::Prepare);
+    drpc_engine->publish_endpoint("Accept", (void *)Paxos::Accept);
+    drpc_engine->publish_endpoint("Learn", (void *)Paxos::Learn);
 
     std::thread t(&drpc_server::run_server, drpc_engine);
     t.detach();
@@ -23,7 +22,7 @@ Paxos::Paxos(int my_index, std::string log_filename) : me(my_index)
     max_done = -1;
     for (size_t i = 0; i < peers.size(); i++)
     {
-        peer_max_done[peers[i]] = max_done;
+        peer_max_done[peers[i].hostname] = max_done;
     }
     max_seq = -1;
     max_n = 0;
@@ -165,8 +164,7 @@ std::pair<Fate, interface> Paxos::Status(int seq)
 std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
 {
     // get peers from state
-    std::vector<std::string> peers_l = get_peers();
-    size_t n_peers = peers_l.size();
+    size_t n_peers = peers.size();
 
     int goal = (int)n_peers / 2 + 1;
     int affirms = 0;
@@ -193,17 +191,18 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
         rpc_arg_wrapper rep;
         req.args = &args;
         req.len = sizeof(PrepareArgs);
-        rep.args = &rep;
+        rep.args = &reply;
         rep.len = sizeof(PrepareReply);
 
         if ((int)p == me)
         {
-            Prepare(this, &req, &rep);
+            drpc_msg m{"Prepare", &req, &rep};
+            Paxos::Prepare(this, m);
         }
         else
         {
             drpc_client c;
-            drpc_host h{peers_l[p], PAXOS_PORT};
+            drpc_host h = peers[p];
             c.Call(h, "Prepare", &req, &rep);
         }
         // save reply
@@ -239,8 +238,7 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
     }
 
     // get peers from state
-    std::vector<std::string> peers_l = get_peers();
-    size_t n_peers = peers_l.size();
+    size_t n_peers = peers.size();
 
     int goal = (int)n_peers / 2 + 1;
     int affirms = 0;
@@ -266,17 +264,18 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
         rpc_arg_wrapper rep;
         req.args = &args;
         req.len = sizeof(AcceptArgs);
-        rep.args = &rep;
+        rep.args = &reply;
         rep.len = sizeof(AcceptReply);
 
         if ((int)p == me)
         {
-            Accept(this, &req, &rep);
+            drpc_msg m{"Accept", &req, &rep};
+            Paxos::Accept(this, m);
         }
         else
         {
             drpc_client c;
-            drpc_host h{peers_l[p], PAXOS_PORT};
+            drpc_host h = peers[p];
             c.Call(h, "Accept", &req, &rep);
         }
 
@@ -300,8 +299,7 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
 std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
 {
     // get peers from state
-    std::vector<std::string> peers_l = get_peers();
-    size_t n_peers = peers_l.size();
+    size_t n_peers = peers.size();
 
     // request content & replies vector
     std::vector<DecidedReply> replies;
@@ -320,17 +318,18 @@ std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
         rpc_arg_wrapper rep;
         req.args = &args;
         req.len = sizeof(DecidedArgs);
-        rep.args = &rep;
+        rep.args = &reply;
         rep.len = sizeof(DecidedReply);
 
         if ((int)p == me)
         {
-            Learn(this, &req, &rep);
+            drpc_msg m{"Learn", &req, &rep};
+            Paxos::Learn(this, m);
         }
         else
         {
             drpc_client c;
-            drpc_host h{peers_l[p], PAXOS_PORT};
+            drpc_host h = peers[p];
             c.Call(h, "Learn", &req, &rep);
         }
         // save reply
@@ -364,7 +363,7 @@ void Paxos::update_min()
 void Paxos::update_peer_max(int peer_idx, int max_done)
 {
     mu.lock();
-    std::string peer = peers[peer_idx];
+    std::string peer = peers[peer_idx].hostname;
     if (peer_max_done[peer] < max_done)
     {
         peer_max_done[peer] = max_done;
@@ -379,14 +378,6 @@ int Paxos::get_max_n()
     int m = max_n;
     mu.unlock();
     return m;
-}
-
-std::vector<std::string> Paxos::get_peers()
-{
-    mu.lock();
-    std::vector<std::string> p = peers;
-    mu.unlock();
-    return p;
 }
 
 int Paxos::get_paxos_min()
@@ -439,8 +430,7 @@ void Paxos::set_max_done(int val)
 
 bool Paxos::did_majority_accept(std::vector<int> &replies)
 {
-    std::vector<std::string> peers_l = get_peers();
-    int goal = (int)peers_l.size() / 2 + 1;
+    int goal = (int)peers.size() / 2 + 1;
     int affirms = 0;
 
     for (int rep : replies)
@@ -465,7 +455,7 @@ std::pair<instance_t, bool> Paxos::read_slot(int key)
 std::string Paxos::whoami()
 {
     mu.lock();
-    std::string whoiam = peers[me];
+    std::string whoiam = peers[me].hostname;
     mu.unlock();
     return whoiam;
 }

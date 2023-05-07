@@ -10,13 +10,11 @@
 #include "Logger.h"
 #include "drpc.h"
 
-#define PAXOS_PORT 8024
 #define nil ""
 #define prepare "Prepare"
 #define accept "Accept"
 #define learn "Learn"
 
-typedef std::string error;
 typedef int Fate;
 typedef void *interface;
 
@@ -38,7 +36,7 @@ private:
     Logger *logger;
     std::map<int, instance_t> log;
     std::map<std::string, int> peer_max_done;
-    std::vector<std::string> peers;
+    std::vector<drpc_host> peers;
     drpc_server *drpc_engine;
     int me; // index in peers
     int max_seq;
@@ -48,16 +46,16 @@ private:
     std::mutex set_sync, mu;
 
 public:
-    Paxos(int, std::string);
+    Paxos(int, std::string, std::vector<drpc_host> &);
     ~Paxos();
     void Start(int, interface);
     void Done(int);
     int Max();
     int Min();
     std::pair<Fate, interface> Status(int);
-    static error Prepare(Paxos *px, rpc_arg_wrapper *, rpc_arg_wrapper *);
-    static error Accept(Paxos *px, rpc_arg_wrapper *, rpc_arg_wrapper *);
-    static error Learn(Paxos *px, rpc_arg_wrapper *, rpc_arg_wrapper *);
+    static void Prepare(Paxos *, drpc_msg &);
+    static void Accept(Paxos *, drpc_msg &);
+    static void Learn(Paxos *, drpc_msg &);
 
 private:
     std::vector<PrepareReply> prepare_phase(int, int, interface);
@@ -66,7 +64,6 @@ private:
     void update_min();
     void update_peer_max(int, int);
     int get_max_n();
-    std::vector<std::string> get_peers();
     int get_paxos_min();
     int get_max_seq();
     void set_max_seq(int);

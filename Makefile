@@ -20,7 +20,7 @@ CXXFLAGS = -std=c++14 -Wconversion -Wall -Werror -Wextra -pedantic
 # make debug - will compile "all" with $(CXXFLAGS) and the -g flag
 #              also defines DEBUG so that "#ifdef DEBUG /*...*/ #endif" works
 debug: CXXFLAGS += -g3 -DDEBUG
-debug: clean all
+debug: clean final
 
 # highest target; sews together all objects into executable
 all: $(LIB) test_basic
