@@ -58,6 +58,7 @@ test_many
 test_concurrent
 test_unreliable
 test_performance
+test_deaf
 .pytest_cache/*
 __pycache__/*
 

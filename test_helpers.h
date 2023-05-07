@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <thread>
+#include <sstream>
 #include "paxos.h"
 
 typedef std::chrono::milliseconds ms;
@@ -13,8 +14,34 @@ typedef std::chrono::seconds s;
 class Testing
 {
 private:
+    std::vector<drpc_host> hosts;
 public:
-    int ndecided(std::vector<Paxos*> &pxa, int seq, std::vector<interface> wantedvals)
+    std::vector<Paxos *> pxa;
+    Testing(const int npaxos)
+    {
+        for (int i = 0; i < npaxos; i++)
+        {
+            drpc_host h{"localhost", (short)(8024 + i)};
+            hosts.push_back(h);
+        }
+        for (int i = 0; i < npaxos; i++)
+        {
+            std::stringstream ss;
+            ss << "output" << i << ".out";
+            Paxos *p = new Paxos(i, ss.str(), hosts);
+            pxa.push_back(p);
+        }
+    }
+
+    ~Testing()
+    {
+        for (size_t i = 0; i < pxa.size(); i++)
+        {
+            delete pxa[i];
+        }
+    }
+
+    int ndecided(int seq, std::vector<interface> wantedvals)
     {
         int count = 0;
         interface v;
@@ -54,12 +81,12 @@ public:
         return count;
     }
 
-    void waitn(std::vector<Paxos*> &pxa, int seq, int wanted, std::vector<interface> wantedvals)
+    void waitn(int seq, int wanted, std::vector<interface> wantedvals)
     {
         ms to(10);
         for (size_t i = 0; i < 30; i++)
         {
-            if (ndecided(pxa, seq, wantedvals) >= wanted)
+            if (ndecided(seq, wantedvals) >= wanted)
             {
                 break;
             }
@@ -71,7 +98,7 @@ public:
                 to *= 2;
             }
         }
-        int nd = ndecided(pxa, seq, wantedvals);
+        int nd = ndecided(seq, wantedvals);
         if (nd < wanted)
         {
             std::cout << "too few decided; seq=" << seq << " ndecided=" << nd << " wanted=" << wanted << std::endl;
@@ -79,9 +106,9 @@ public:
         }
     }
 
-    void waitmajority(std::vector<Paxos*> &pxa, int seq, std::vector<interface> wantedvals)
+    void waitmajority(int seq, std::vector<interface> wantedvals)
     {
-        waitn(pxa, seq, ((int)pxa.size() / 2) + 1, wantedvals);
+        waitn(seq, ((int)pxa.size() / 2) + 1, wantedvals);
     }
 };
 
