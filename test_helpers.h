@@ -11,17 +11,18 @@
 typedef std::chrono::milliseconds MS;
 typedef std::chrono::seconds S;
 
+#define TESTING_START_PORT 8024
+
 class Testing
 {
-private:
-    std::vector<drpc_host> hosts;
 public:
+    std::vector<drpc_host> hosts;
     std::vector<Paxos *> pxa;
     Testing(const int npaxos)
     {
         for (int i = 0; i < npaxos; i++)
         {
-            drpc_host h{"localhost", (short)(8024 + i)};
+            drpc_host h{"localhost", (short)(TESTING_START_PORT + i)};
             hosts.push_back(h);
         }
         for (int i = 0; i < npaxos; i++)
