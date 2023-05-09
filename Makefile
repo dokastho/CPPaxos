@@ -23,7 +23,7 @@ debug: CXXFLAGS += -g3 -DDEBUG
 debug: clean final
 
 # highest target; sews together all objects into executable
-all: $(LIB) test_basic test_deaf test_min test_forget
+all: $(LIB) test_basic test_deaf test_min test_forget test_many_forget test_many
 
 final: clean all
 	ln -f $(LIB) $(SO_PATH)
@@ -32,7 +32,7 @@ $(LIB): $(OBJECTS)
 	$(CXX)  $(CXXFLAGS) $(OBJECTS)  -o  $(LIB)  -shared
 
 clean:
-	rm -f $(OBJECTS) $(EXECUTABLE) $(TESTS) $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE)
+	rm -f $(OBJECTS) $(EXECUTABLE) $(TESTS) $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE) *.out
 
 # test1: test1.cpp $(LIB)
 # 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -46,6 +46,12 @@ test_min: test_min.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 test_forget: test_forget.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test_many: test_many.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test_many_forget: test_many_forget.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # rule for creating objects

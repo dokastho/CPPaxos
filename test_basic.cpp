@@ -8,7 +8,7 @@
 int main()
 {
     const int npaxos = 3;
-    Testing t(3);
+    Testing t(npaxos);
 
     std::cout << "Test: Single proposer ..." << std::endl;
 

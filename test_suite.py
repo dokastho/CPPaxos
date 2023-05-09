@@ -18,10 +18,16 @@ def test_deaf():
     pass
 
 
-# def test_many():
-#     cmd = './test_many'
-#     assert(run_command(cmd) == 0)
-#     pass
+def test_forget():
+    cmd = './test_forget'
+    assert(run_command(cmd) == 0)
+    pass
+
+
+def test_many_forget():
+    cmd = './test_many_forget'
+    assert(run_command(cmd) == 0)
+    pass
 
 
 # def test_concurrent():

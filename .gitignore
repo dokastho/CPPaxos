@@ -66,3 +66,4 @@ __pycache__/*
 drpc.h
 test_min
 test_forget
+test_many_forget
