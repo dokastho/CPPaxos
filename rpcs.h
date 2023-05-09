@@ -3,6 +3,7 @@
 
 #define OK 0
 #define Reject 1
+#define Err 2
 
 struct PrepareArgs
 {
@@ -23,7 +24,7 @@ struct PrepareReply
     int max_seq;
     int id_index;
     int max_done;
-    bool valid;
+    int err;
 };
 
 struct AcceptArgs
@@ -44,6 +45,7 @@ struct AcceptReply
     int max_seq;
     int id_index;
     int max_done;
+    int err;
 };
 
 struct DecidedArgs
@@ -64,6 +66,7 @@ struct DecidedReply
     int max_seq;
     int id_index;
     int max_done;
+    int err;
 };
 
 #endif

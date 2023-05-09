@@ -24,9 +24,10 @@ int main()
     t.pxa[0]->Deafen();
     t.pxa[npaxos - 1]->Deafen();
 
+    t.Sleep(MS(300));
+
     t.pxa[1]->Start(1, val2);
     t.waitmajority(1, {val2});
-    t.Sleep(S(1));
     if (t.ndecided(1, {val2}) != npaxos - 2)
     {
         std::cout << "a deaf peer heard about a decision" << std::endl;
@@ -35,7 +36,6 @@ int main()
     
     t.pxa[0]->Start(1, val3);
     t.waitn(1, npaxos-1, {val2});
-    t.Sleep(S(1));
     if (t.ndecided(1, {val2}) != npaxos - 1)
     {
         std::cout << "a deaf peer heard about a decision" << std::endl;

@@ -60,7 +60,7 @@ public:
             {
                 if (count > 0 && v != v1)
                 {
-                    std::cout << "decided value" << v1 << " for seq= " << seq << " at peer " << pxa[i]->whoami() << " does not match previously seen decided value " << v << std::endl;
+                    std::cout << "decided value " << v1 << " for seq=" << seq << " at peer " << pxa[i]->whoami() << " does not match previously seen decided value " << v << std::endl;
                     exit(1);
                 }
                 if (!wantedvals.empty())
@@ -76,7 +76,7 @@ public:
                     }
                     if (!match)
                     {
-                        std::cout << "decided value" << v1 << " for seq= " << seq << " at peer " << pxa[i]->whoami() << " does not match any expected value" << std::endl;
+                        std::cout << "decided value " << v1 << " for seq=" << seq << " at peer " << pxa[i]->whoami() << " does not match any expected value" << std::endl;
                         exit(1);
                     }
                 }

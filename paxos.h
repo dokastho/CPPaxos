@@ -15,6 +15,8 @@
 #define accept "Accept"
 #define learn "Learn"
 
+#define RPC_TIMEOUT 200 // in ms
+
 typedef int Fate;
 typedef void *interface;
 
@@ -38,13 +40,13 @@ private:
     std::map<std::string, int> peer_max_done;
     std::vector<drpc_host> peers;
     drpc_server *drpc_engine;
+    drpc_client *drpc_agent;
     int me; // index in peers
     int max_seq;
     int max_done;
     int max_n;
     int paxos_min;
     std::mutex set_sync, mu;
-    bool deaf;
 
 public:
     Paxos(int, std::string, std::vector<drpc_host> &);

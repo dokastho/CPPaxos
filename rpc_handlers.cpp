@@ -6,18 +6,17 @@ void Paxos::Prepare(Paxos *px, drpc_msg &m)
     PrepareReply *r = (PrepareReply *)m.rep->args;
 
     px->set_sync.lock();
-    if (px->deaf) return;
 
     px->update_peer_max(p->id_index, p->max_done);
     px->update_max_seq(p->seq);
 
     // default to reject
     r->res = Reject;
+    r->err = OK;
     r->max_done = px->get_max_done();
     r->max_seq = px->get_max_seq();
     r->n_a = -1;
     r->id_index = px->me;
-    r->valid = true;
     r->seq = p->seq;
 
     px->mu.lock();
@@ -50,12 +49,12 @@ void Paxos::Accept(Paxos *px, drpc_msg &m)
     AcceptReply *r = (AcceptReply *)m.rep->args;
 
     px->set_sync.lock();
-    if (px->deaf) return;
 
     px->update_peer_max(p->id_index, p->max_done);
     px->update_max_seq(p->seq);
 
     r->res = Reject;
+    r->err = OK;
     r->max_done = px->get_max_done();
     r->max_seq = px->get_max_seq();
     r->id_index = px->me;
@@ -86,7 +85,6 @@ void Paxos::Learn(Paxos *px, drpc_msg &m)
     DecidedReply *r = (DecidedReply *)m.rep->args;
 
     px->set_sync.lock();
-    if (px->deaf) return;
 
     px->update_peer_max(p->id_index, p->max_done);
     px->update_max_seq(p->seq);
@@ -103,6 +101,7 @@ void Paxos::Learn(Paxos *px, drpc_msg &m)
     datum.n_a = p->n;
 
     r->res = OK;
+    r->err = OK;
     r->max_done = px->max_done;
     r->max_seq = px->max_seq;
 

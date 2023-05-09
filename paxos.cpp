@@ -5,12 +5,12 @@
 
 Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &peers_arg) : me(my_index)
 {
-    logger = new Logger(log_filename);
     peers = peers_arg;
-    deaf = false;
-
     drpc_host my_host = peers[me];
     drpc_engine = new drpc_server(my_host, this);
+    drpc_agent = new drpc_client(RPC_TIMEOUT);
+    logger = new Logger(log_filename);
+
 
     // register RPC functions
     drpc_engine->publish_endpoint("Prepare", (void *)Paxos::Prepare);
@@ -33,18 +33,21 @@ Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &pee
 Paxos::~Paxos()
 {
     drpc_engine->kill();
+    delete drpc_engine;
+    delete drpc_agent;
+    delete logger;
 }
 
 void Paxos::Deafen()
 {
     set_sync.lock();
-    deaf = true;
+    drpc_engine->kill();
     set_sync.unlock();
 }
 
 void Paxos::Start(int seq, interface v)
 {
-    bool majority_accept, zero_replies, retry;
+    bool majority_accept = false, zero_replies = false, retry = false;
     std::vector<int> statuses;
 
     update_max_seq(seq);
@@ -64,6 +67,10 @@ void Paxos::Start(int seq, interface v)
         statuses.clear();
         for (PrepareReply vx : p_replies)
         {
+            if (vx.err == Err)
+            {
+                continue;
+            }
             statuses.push_back(vx.res);
             update_peer_max(vx.id_index, vx.max_done);
             update_max_seq(vx.max_seq);
@@ -90,11 +97,16 @@ void Paxos::Start(int seq, interface v)
             // start accept phase
             auto ret = accept_phase(seq, n, v, p_replies);
             auto a_replies = ret.first;
+            v = ret.second;
 
             statuses.clear();
             // get status from each reply
             for (AcceptReply vx : a_replies)
             {
+                if (vx.err == Err)
+                {
+                    continue;
+                }
                 statuses.push_back(vx.res);
                 update_peer_max(vx.id_index, vx.max_done);
                 update_max_seq(vx.max_seq);
@@ -195,6 +207,7 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
             me,
             get_max_done()};
         PrepareReply reply;
+        reply.err = Err;
         rpc_arg_wrapper req;
         rpc_arg_wrapper rep;
         req.args = &args;
@@ -209,10 +222,16 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
         }
         else
         {
-            drpc_client c;
             drpc_host h = peers[p];
-            c.Call(h, "Prepare", &req, &rep);
+            drpc_agent->Call(h, "Prepare", &req, &rep);
         }
+
+        // efficiency
+        if (reply.res == OK && reply.err == OK)
+        {
+            affirms++;
+        }
+
         // save reply
         replies.push_back(reply);
         if (affirms == goal)
@@ -234,7 +253,7 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
     // find max n_a, set v_prime if one found
     for (PrepareReply reply : p_replies)
     {
-        if (!reply.valid)
+        if (reply.err == Err)
         {
             continue;
         }
@@ -268,6 +287,7 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
             me,
             get_max_done()};
         AcceptReply reply;
+        reply.err = Err;
         rpc_arg_wrapper req;
         rpc_arg_wrapper rep;
         req.args = &args;
@@ -282,13 +302,12 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
         }
         else
         {
-            drpc_client c;
             drpc_host h = peers[p];
-            c.Call(h, "Accept", &req, &rep);
+            drpc_agent->Call(h, "Accept", &req, &rep);
         }
 
         // efficiency
-        if (reply.res == OK)
+        if (reply.res == OK && reply.err == OK)
         {
             affirms++;
         }
@@ -322,6 +341,7 @@ std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
             me,
             get_max_done()};
         DecidedReply reply;
+        reply.err = Err;
         rpc_arg_wrapper req;
         rpc_arg_wrapper rep;
         req.args = &args;
@@ -336,9 +356,8 @@ std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
         }
         else
         {
-            drpc_client c;
             drpc_host h = peers[p];
-            c.Call(h, "Learn", &req, &rep);
+            drpc_agent->Call(h, "Learn", &req, &rep);
         }
         // save reply
         replies.push_back(reply);
