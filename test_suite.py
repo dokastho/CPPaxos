@@ -12,6 +12,12 @@ def test_basic():
     pass
 
 
+def test_deaf():
+    cmd = './test_deaf'
+    assert(run_command(cmd) == 0)
+    pass
+
+
 # def test_many():
 #     cmd = './test_many'
 #     assert(run_command(cmd) == 0)

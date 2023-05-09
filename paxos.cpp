@@ -1,4 +1,5 @@
 #include <thread>
+#include <sstream>
 #include <string.h>
 
 #include "paxos.h"
@@ -11,7 +12,6 @@ Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &pee
     drpc_agent = new drpc_client(RPC_TIMEOUT);
     logger = new Logger(log_filename);
 
-
     // register RPC functions
     drpc_engine->publish_endpoint("Prepare", (void *)Paxos::Prepare);
     drpc_engine->publish_endpoint("Accept", (void *)Paxos::Accept);
@@ -21,9 +21,9 @@ Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &pee
     t.detach();
 
     max_done = -1;
-    for (size_t i = 0; i < peers.size(); i++)
+    for (int i = 0; i < (int)peers.size(); i++)
     {
-        peer_max_done[peers[i].hostname] = max_done;
+        peer_max_done[peer_name(i)] = max_done;
     }
     max_seq = -1;
     max_n = 0;
@@ -376,11 +376,16 @@ void Paxos::update_min()
         minimum = std::min(it->second, minimum);
     }
     paxos_min = minimum;
+    std::vector<int> keys;
     for (auto it = log.begin(); it != log.end(); it++)
     {
-        if (it->first <= minimum)
+        keys.push_back(it->first);
+    }
+    for (auto key : keys)
+    {
+        if (key <= minimum)
         {
-            log.erase(it->first);
+            log.erase(key);
         }
     }
 
@@ -390,7 +395,7 @@ void Paxos::update_min()
 void Paxos::update_peer_max(int peer_idx, int max_done)
 {
     mu.lock();
-    std::string peer = peers[peer_idx].hostname;
+    std::string peer = peer_name(peer_idx);
     if (peer_max_done[peer] < max_done)
     {
         peer_max_done[peer] = max_done;
@@ -482,7 +487,7 @@ std::pair<instance_t, bool> Paxos::read_slot(int key)
 std::string Paxos::whoami()
 {
     mu.lock();
-    std::string whoiam = peers[me].hostname;
+    std::string whoiam = peer_name(me);
     mu.unlock();
     return whoiam;
 }
@@ -515,4 +520,12 @@ bool Paxos::do_accept_phase(int n_p, std::vector<PrepareReply> &replies)
         maximum = std::max(maximum, n);
     }
     return maximum < n_p;
+}
+
+std::string Paxos::peer_name(int peer_idx)
+{
+    drpc_host peer = peers[peer_idx];
+    std::stringstream ss;
+    ss << peer.hostname << ":" << peer.port;
+    return ss.str();
 }

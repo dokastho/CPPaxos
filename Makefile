@@ -23,7 +23,7 @@ debug: CXXFLAGS += -g3 -DDEBUG
 debug: clean final
 
 # highest target; sews together all objects into executable
-all: $(LIB) test_basic test_deaf
+all: $(LIB) test_basic test_deaf test_min test_forget
 
 final: clean all
 	ln -f $(LIB) $(SO_PATH)
@@ -40,6 +40,12 @@ test_basic: test_basic.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 test_deaf: test_deaf.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test_min: test_min.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test_forget: test_forget.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # rule for creating objects

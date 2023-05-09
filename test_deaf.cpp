@@ -46,4 +46,5 @@ int main()
     t.waitn(1, npaxos, {val2});
 
     std::cout << "... Passed" << std::endl;
+    return 0;
 }
