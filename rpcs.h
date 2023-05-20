@@ -9,7 +9,7 @@ struct OpArgs
 {
     int seq;
     int seed;
-    interface val;
+    void* val;
 };
 
 struct OpReply

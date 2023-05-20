@@ -26,6 +26,8 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
         stat = val.first;
     }
 
+    px->Done(p->seq);
+
     r->op = *(OpArgs *)val.second;
 }
 
