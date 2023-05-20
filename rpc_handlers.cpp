@@ -1,4 +1,33 @@
 #include "paxos.h"
+#include <thread>
+
+void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
+{
+    OpArgs *p = (OpArgs *)m.req->args;
+    OpReply *r = (OpReply *)m.rep->args;
+
+    auto val = px->Status(p->seq);
+    Fate stat = val.first;
+
+    if (stat != Decided)
+    {
+        px->Start(p->seq, p->val);
+        r->op = *(OpArgs *)val.second;
+        return;
+    }
+    val = px->Status(p->seq);
+    stat = val.first;
+    int exp_back_ctr = 1;
+    while (stat != Decided)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10 * exp_back_ctr));
+        exp_back_ctr *= 2;
+        val = px->Status(p->seq);
+        stat = val.first;
+    }
+
+    r->op = *(OpArgs *)val.second;
+}
 
 void Paxos::Prepare(Paxos *px, drpc_msg &m)
 {

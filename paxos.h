@@ -123,6 +123,9 @@ public:
     // for testing only
     void Deafen();
 
+    // RPC for invoking the paxos process
+    static void paxos_rpc(Paxos *, drpc_msg &);
+
     std::string whoami();
     static void Prepare(Paxos *, drpc_msg &);
     static void Accept(Paxos *, drpc_msg &);

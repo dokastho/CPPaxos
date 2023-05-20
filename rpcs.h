@@ -5,6 +5,18 @@
 #define Reject 1
 #define Err 2
 
+struct OpArgs
+{
+    int seq;
+    int seed;
+    interface val;
+};
+
+struct OpReply
+{
+    OpArgs op;
+};
+
 struct PrepareArgs
 {
     int seq;

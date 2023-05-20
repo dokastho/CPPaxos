@@ -16,6 +16,7 @@ Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &pee
     drpc_engine->publish_endpoint("Prepare", (void *)Paxos::Prepare);
     drpc_engine->publish_endpoint("Accept", (void *)Paxos::Accept);
     drpc_engine->publish_endpoint("Learn", (void *)Paxos::Learn);
+    drpc_engine->publish_endpoint("Paxos", (void *)Paxos::paxos_rpc);
 
     std::thread t(&drpc_server::run_server, drpc_engine);
     t.detach();
