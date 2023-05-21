@@ -6,12 +6,24 @@
 #include <iostream>
 #include <thread>
 #include <sstream>
+#include <string>
 #include "paxos.h"
 
 typedef std::chrono::milliseconds MS;
 typedef std::chrono::seconds S;
 
 #define TESTING_START_PORT 8024
+
+// print data as concatenated numbers
+std::string PaxosOp_to_string(const PaxosOp &p)
+{
+    std::string string_data;
+    for (size_t i = 0; i < PAXOS_OP_SIZE; i++)
+    {
+        string_data += std::to_string(p.data[i]);
+    }
+    return string_data;
+}
 
 class Testing
 {
@@ -42,32 +54,32 @@ public:
         }
     }
 
-    template<typename T>
+    template <typename T>
     void Sleep(T d)
     {
         std::this_thread::sleep_for(d);
     }
 
-    int ndecided(int seq, std::vector<interface> wantedvals)
+    int ndecided(int seq, std::vector<PaxosOp> wantedvals)
     {
         int count = 0;
-        interface v;
+        PaxosOp v;
         for (size_t i = 0; i < pxa.size(); i++)
         {
             auto p = pxa[i]->Status(seq);
             bool decided = p.first;
-            interface v1 = p.second;
+            PaxosOp v1 = *p.second;
             if (decided == Decided)
             {
                 if (count > 0 && v != v1)
                 {
-                    std::cout << "decided value " << v1 << " for seq=" << seq << " at peer " << pxa[i]->whoami() << " does not match previously seen decided value " << v << std::endl;
+                    std::cout << "decided value " << PaxosOp_to_string(v1) << " for seq=" << seq << " at peer " << pxa[i]->whoami() << " does not match previously seen decided value " << PaxosOp_to_string(v) << std::endl;
                     exit(1);
                 }
                 if (!wantedvals.empty())
                 {
                     bool match = false;
-                    for (interface val : wantedvals)
+                    for (PaxosOp val : wantedvals)
                     {
                         if (val == v1)
                         {
@@ -77,7 +89,7 @@ public:
                     }
                     if (!match)
                     {
-                        std::cout << "decided value " << v1 << " for seq=" << seq << " at peer " << pxa[i]->whoami() << " does not match any expected value" << std::endl;
+                        std::cout << "decided value " << PaxosOp_to_string(v1) << " for seq=" << seq << " at peer " << pxa[i]->whoami() << " does not match any expected value" << std::endl;
                         exit(1);
                     }
                 }
@@ -88,7 +100,7 @@ public:
         return count;
     }
 
-    void waitn(int seq, int wanted, std::vector<interface> wantedvals)
+    void waitn(int seq, int wanted, std::vector<PaxosOp> wantedvals)
     {
         MS to(10);
         for (size_t i = 0; i < 30; i++)
@@ -113,7 +125,7 @@ public:
         }
     }
 
-    void waitmajority(int seq, std::vector<interface> wantedvals)
+    void waitmajority(int seq, std::vector<PaxosOp> wantedvals)
     {
         waitn(seq, ((int)pxa.size() / 2) + 1, wantedvals);
     }

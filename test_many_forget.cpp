@@ -17,13 +17,14 @@ std::mutex m;
 void starter()
 {
     int seq, j, r;
-    interface v;
+    PaxosOp v;
     for (size_t i = 0; i < maxseq; i++)
     {
         r = rand();
         seq = r % maxseq;
         j = r % npaxos;
-        v = (interface)&r;
+        std::string rs = std::to_string(r);
+        v = PaxosOp(rs.c_str(), rs.size());
         t.pxa[j]->Start(seq, v);
     }
     {

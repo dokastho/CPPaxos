@@ -46,7 +46,7 @@ void Paxos::Deafen()
     set_sync.unlock();
 }
 
-void Paxos::Start(int seq, interface v)
+void Paxos::Start(int seq, PaxosOp v)
 {
     bool majority_accept = false, zero_replies = false, retry = false;
     std::vector<int> statuses;
@@ -156,7 +156,7 @@ int Paxos::Min()
     return get_paxos_min() + 1;
 }
 
-std::pair<Fate, interface> Paxos::Status(int seq)
+std::pair<Fate, PaxosOp*> Paxos::Status(int seq)
 {
     if (seq < get_paxos_min())
     {
@@ -173,7 +173,7 @@ std::pair<Fate, interface> Paxos::Status(int seq)
         instance_t val = item.first;
         if (ok)
         {
-            return {val.status, val.v_a};
+            return {val.status, &val.v_a};
         }
         else
         {
@@ -182,7 +182,7 @@ std::pair<Fate, interface> Paxos::Status(int seq)
     }
 }
 
-std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
+std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, PaxosOp v)
 {
     // get peers from state
     size_t n_peers = peers.size();
@@ -201,9 +201,9 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
         }
 
         PrepareArgs args{
+            v,
             seq,
             n,
-            v,
             get_max_seq(),
             me,
             get_max_done()};
@@ -244,10 +244,10 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, interface v)
     return replies;
 }
 
-std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int n, interface v, std::vector<PrepareReply> &p_replies)
+std::pair<std::vector<AcceptReply>, PaxosOp> Paxos::accept_phase(int seq, int n, PaxosOp v, std::vector<PrepareReply> &p_replies)
 {
     int max_n_a = 0;
-    interface v_prime = v;
+    PaxosOp v_prime = v;
 
     std::string whoiam = whoami();
 
@@ -281,9 +281,9 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
             break;
         }
         AcceptArgs args{
+            v_prime,
             seq,
             n,
-            v_prime,
             get_max_seq(),
             me,
             get_max_done()};
@@ -324,7 +324,7 @@ std::pair<std::vector<AcceptReply>, interface> Paxos::accept_phase(int seq, int 
     return {replies, v_prime};
 }
 
-std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
+std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, PaxosOp v)
 {
     // get peers from state
     size_t n_peers = peers.size();
@@ -335,9 +335,9 @@ std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, interface v)
     for (size_t p = 0; p < n_peers; p++)
     {
         DecidedArgs args{
+            v,
             seq,
             n,
-            v,
             get_max_seq(),
             me,
             get_max_done()};

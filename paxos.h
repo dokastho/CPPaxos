@@ -17,9 +17,6 @@
 
 #define RPC_TIMEOUT 200 // in ms
 
-typedef int Fate;
-typedef void *interface;
-
 const Fate Decided = 0;
 const Fate Pending = 1;
 const Fate Forgotten = 2;
@@ -29,7 +26,7 @@ struct instance_t
     Fate status;
     int n_a;
     int n_p;
-    interface v_a;
+    PaxosOp v_a;
 };
 
 class Paxos
@@ -60,7 +57,7 @@ public:
     // is reached.
     //
     // Comment credit to harshavm@umich.edu
-    void Start(int, interface);
+    void Start(int, PaxosOp);
 
     //
     // the application on this machine is done with
@@ -118,7 +115,7 @@ public:
     // it should not contact other Paxos peers.
     //
     // Comment credit to harshavm@umich.edu
-    std::pair<Fate, interface> Status(int);
+    std::pair<Fate, PaxosOp*> Status(int);
 
     // for testing only
     void Deafen();
@@ -132,9 +129,9 @@ public:
     static void Learn(Paxos *, drpc_msg &);
 
 private:
-    std::vector<PrepareReply> prepare_phase(int, int, interface);
-    std::pair<std::vector<AcceptReply>, interface> accept_phase(int, int, interface, std::vector<PrepareReply> &);
-    std::vector<DecidedReply> learn_phase(int, int, interface);
+    std::vector<PrepareReply> prepare_phase(int, int, PaxosOp);
+    std::pair<std::vector<AcceptReply>, PaxosOp> accept_phase(int, int, PaxosOp, std::vector<PrepareReply> &);
+    std::vector<DecidedReply> learn_phase(int, int, PaxosOp);
     void update_min();
     void update_peer_max(int, int);
     int get_max_n();

@@ -148,7 +148,7 @@ instance_t Paxos::rpc_inst_init(int seq)
         Pending,
         -1,
         -1,
-        nullptr,
+        PaxosOp{},
     };
 
     bool exists = log.find(seq) != log.end();

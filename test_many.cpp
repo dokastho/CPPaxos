@@ -9,18 +9,21 @@ int main()
 {
     const int npaxos = 5;
     const int niter = 500;
+    const int start = rand() % 0xffff;
     Testing t(npaxos);
 
     std::cout << "Test: Many instances ..." << std::endl;
 
     for (int seq = 0; seq < niter; seq++)
     {
-        t.pxa[rand() % npaxos]->Start(seq, (interface)(&npaxos + seq));
+        std::string val = std::to_string((start + seq));
+        t.pxa[rand() % npaxos]->Start(seq, PaxosOp(val.c_str(), val.size()));
     }
     
     for (int seq = 0; seq < niter; seq++)
     {
-        interface wanted = (interface)(&npaxos + seq);
+        std::string val = std::to_string((start + seq));
+        PaxosOp wanted = PaxosOp(val.c_str(), val.size());
         int count = 0;
         while (t.ndecided(seq, {wanted}) < npaxos)
         {

@@ -14,11 +14,11 @@ int main()
 
     Testing t(npaxos);
 
-    interface val0 = (interface)0x0;
-    interface val1 = (interface)0x1;
-    interface val2 = (interface)0x2;
-    interface val6 = (interface)0x6;
-    interface val7 = (interface)0x7;
+    PaxosOp val0 = PaxosOp("0x0", 3);
+    PaxosOp val1 = PaxosOp("0x1", 3);
+    PaxosOp val2 = PaxosOp("0x2", 3);
+    PaxosOp val6 = PaxosOp("0x6", 3);
+    PaxosOp val7 = PaxosOp("0x7", 3);
 
     t.pxa[0]->Start(0, val0);
     t.pxa[1]->Start(1, val1);
