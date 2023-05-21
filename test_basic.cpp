@@ -30,17 +30,23 @@ int main()
     std::cout << "... Passed" << std::endl;
 
     std::cout << "Test: Out-of-order instances ..." << std::endl;
+    
+    PaxosOp val3 = PaxosOp("300", 3);
+    PaxosOp val4 = PaxosOp("400", 3);
+    PaxosOp val5 = PaxosOp("500", 3);
+    PaxosOp val6 = PaxosOp("600", 3);
+    PaxosOp val7 = PaxosOp("700", 3);
 
-    t.pxa[0]->Start(7, PaxosOp("700", 3));
-	t.pxa[0]->Start(6, PaxosOp("600", 3));
-	t.pxa[1]->Start(5, PaxosOp("500", 3));
-	t.waitn(7, npaxos, {PaxosOp("700", 3)});
-	t.pxa[0]->Start(4, PaxosOp("400", 3));
-	t.pxa[1]->Start(3, PaxosOp("300", 3));
-	t.waitn(6, npaxos, {PaxosOp("600", 3)});
-	t.waitn(5, npaxos, {PaxosOp("500", 3)});
-	t.waitn(4, npaxos, {PaxosOp("400", 3)});
-	t.waitn(3, npaxos, {PaxosOp("300", 3)});
+    t.pxa[0]->Start(7, val7);
+	t.pxa[0]->Start(6, val6);
+	t.pxa[1]->Start(5, val5);
+	t.waitn(7, npaxos, {val7});
+	t.pxa[0]->Start(4, val4);
+	t.pxa[1]->Start(3, val3);
+	t.waitn(6, npaxos, {val6});
+	t.waitn(5, npaxos, {val5});
+	t.waitn(4, npaxos, {val4});
+	t.waitn(3, npaxos, {val3});
 
     int max_seq = t.pxa[0]->Max();
     if (max_seq != 7) {

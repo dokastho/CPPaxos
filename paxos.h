@@ -10,7 +10,6 @@
 #include "Logger.h"
 #include "drpc.h"
 
-#define nil ""
 #define prepare "Prepare"
 #define accept "Accept"
 #define learn "Learn"

@@ -6,6 +6,8 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
     PaxosOp *p = (PaxosOp *)m.req->args;
     PaxosOp *r = (PaxosOp *)m.rep->args;
 
+    std::cout << "received request with seed " << p->seed << std::endl;
+
     int seq = px->Max();
 
     auto val = px->Status(seq);
@@ -16,7 +18,6 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
         px->Start(seq, *p);
         *r = val.second;
         r->seed = 0; // temporary so that I come back and debug
-        return;
     }
     val = px->Status(seq);
     stat = val.first;

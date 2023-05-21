@@ -20,12 +20,12 @@ CXXFLAGS = -std=c++14 -Wconversion -Wall -Werror -Wextra -pedantic
 # make debug - will compile "all" with $(CXXFLAGS) and the -g flag
 #              also defines DEBUG so that "#ifdef DEBUG /*...*/ #endif" works
 debug: CXXFLAGS += -g3 -DDEBUG
-debug: clean final
+debug: clean all
 
 # highest target; sews together all objects into executable
-all: $(LIB) test_basic test_deaf test_min test_forget test_many_forget test_many test_old
+all: $(LIB) test_basic test_endpoint test_deaf test_min test_forget test_many_forget test_many test_old
 
-final: clean all
+final: clean $(LIB)
 	ln -f $(LIB) $(SO_PATH)
 
 $(LIB): $(OBJECTS)
@@ -37,6 +37,9 @@ clean:
 # test1: test1.cpp $(LIB)
 # 	$(CXX) $(CXXFLAGS) -o $@ $^
 test_basic: test_basic.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test_endpoint: test_endpoint.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 test_deaf: test_deaf.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)

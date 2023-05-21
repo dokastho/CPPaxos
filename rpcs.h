@@ -21,6 +21,7 @@ struct PaxosOp
     PaxosOp()
     {
         memset(this->data, '\0', PAXOS_OP_SIZE);
+        seed = rand();
     }
 
     template <typename T>
@@ -28,16 +29,17 @@ struct PaxosOp
     {
         memset(this->data, '\0', PAXOS_OP_SIZE);
         memcpy(this->data, datum, len);
+        seed = rand();
     }
 
     bool operator==(PaxosOp &rhs)
     {
-        return memcmp(this->data, rhs.data, PAXOS_OP_SIZE) == 0;
+        return this->seed == rhs.seed;
     }
 
     bool operator!=(PaxosOp &rhs)
     {
-        return memcmp(this->data, rhs.data, PAXOS_OP_SIZE) != 0;
+        return this->seed != rhs.seed;
     }
 };
 

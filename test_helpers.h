@@ -67,7 +67,7 @@ public:
         for (size_t i = 0; i < pxa.size(); i++)
         {
             auto p = pxa[i]->Status(seq);
-            bool decided = p.first;
+            int decided = p.first;
             PaxosOp v1 = p.second;
             if (decided == Decided)
             {
