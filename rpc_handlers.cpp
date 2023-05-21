@@ -15,6 +15,7 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
     {
         px->Start(seq, *p);
         *r = val.second;
+        r->seed = 0; // temporary so that I come back and debug
         return;
     }
     val = px->Status(seq);
@@ -30,6 +31,7 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
 
     px->Done(seq);
     *r = val.second;
+    r->seed = 0; // temporary so that I come back and debug
 }
 
 void Paxos::Prepare(Paxos *px, drpc_msg &m)
