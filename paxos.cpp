@@ -156,15 +156,15 @@ int Paxos::Min()
     return get_paxos_min() + 1;
 }
 
-std::pair<Fate, PaxosOp*> Paxos::Status(int seq)
+std::pair<Fate, PaxosOp> Paxos::Status(int seq)
 {
     if (seq < get_paxos_min())
     {
-        return {Forgotten, nullptr};
+        return {Forgotten, PaxosOp()};
     }
     else if (seq > get_max_seq())
     {
-        return {Forgotten, nullptr};
+        return {Forgotten, PaxosOp()};
     }
     else
     {
@@ -173,11 +173,11 @@ std::pair<Fate, PaxosOp*> Paxos::Status(int seq)
         instance_t val = item.first;
         if (ok)
         {
-            return {val.status, &val.v_a};
+            return {val.status, val.v_a};
         }
         else
         {
-            return {Forgotten, nullptr};
+            return {Forgotten, PaxosOp()};
         }
     }
 }

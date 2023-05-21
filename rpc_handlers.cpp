@@ -3,32 +3,33 @@
 
 void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
 {
-    OpArgs *p = (OpArgs *)m.req->args;
-    OpReply *r = (OpReply *)m.rep->args;
+    PaxosOp *p = (PaxosOp *)m.req->args;
+    PaxosOp *r = (PaxosOp *)m.rep->args;
 
-    auto val = px->Status(p->seq);
+    int seq = px->Max();
+
+    auto val = px->Status(seq);
     Fate stat = val.first;
 
     if (stat != Decided)
     {
-        px->Start(p->seq, p->val);
-        r->op = *(OpArgs *)val.second;
+        px->Start(seq, *p);
+        *r = val.second;
         return;
     }
-    val = px->Status(p->seq);
+    val = px->Status(seq);
     stat = val.first;
     int exp_back_ctr = 1;
     while (stat != Decided)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10 * exp_back_ctr));
         exp_back_ctr *= 2;
-        val = px->Status(p->seq);
+        val = px->Status(seq);
         stat = val.first;
     }
 
-    px->Done(p->seq);
-
-    r->op = *(OpArgs *)val.second;
+    px->Done(seq);
+    *r = val.second;
 }
 
 void Paxos::Prepare(Paxos *px, drpc_msg &m)

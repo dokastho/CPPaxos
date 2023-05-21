@@ -15,6 +15,7 @@ typedef int Fate;
 
 struct PaxosOp
 {
+    int seed;
     uint8_t data[PAXOS_OP_SIZE];
 
     PaxosOp()
@@ -38,18 +39,6 @@ struct PaxosOp
     {
         return memcmp(this->data, rhs.data, PAXOS_OP_SIZE) != 0;
     }
-};
-
-struct OpArgs
-{
-    PaxosOp val;
-    int seq;
-    int seed;
-};
-
-struct OpReply
-{
-    OpArgs op;
 };
 
 struct PrepareArgs

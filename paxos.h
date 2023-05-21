@@ -115,7 +115,7 @@ public:
     // it should not contact other Paxos peers.
     //
     // Comment credit to harshavm@umich.edu
-    std::pair<Fate, PaxosOp*> Status(int);
+    std::pair<Fate, PaxosOp> Status(int);
 
     // for testing only
     void Deafen();

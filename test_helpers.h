@@ -68,7 +68,7 @@ public:
         {
             auto p = pxa[i]->Status(seq);
             bool decided = p.first;
-            PaxosOp v1 = *p.second;
+            PaxosOp v1 = p.second;
             if (decided == Decided)
             {
                 if (count > 0 && v != v1)
