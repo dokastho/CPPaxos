@@ -6,7 +6,6 @@
 #include <mutex>
 #include <iostream>
 #include <chrono>
-#include <ctime>
 
 #include "paxos.h"
 
@@ -35,7 +34,7 @@ public:
     {
         m.lock();
         std::time_t timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        log_file_fp << std::ctime(&timestamp) << sp << "n_a:" << sp << datum.n_a << sp << "n_p:" << sp << datum.n_p << sp << "status:" << sp << datum.status << sp << "v_a:" << datum.v_a.data << "\n";
+        log_file_fp << std::chrono:: << sp << "n_a:" << sp << datum.n_a << sp << "n_p:" << sp << datum.n_p << sp << "status:" << sp << datum.status << sp << "v_a:" << datum.v_a.data << "\n";
         m.unlock();
         flush_log();
     }
