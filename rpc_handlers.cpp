@@ -136,6 +136,7 @@ void Paxos::Learn(Paxos *px, drpc_msg &m)
     r->max_seq = px->max_seq;
 
     px->log[p->seq] = datum;
+    px->logger->write_line(datum);
     px->mu.unlock();
 
     px->set_sync.unlock();

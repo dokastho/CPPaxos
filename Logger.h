@@ -6,6 +6,7 @@
 #include <mutex>
 #include <iostream>
 
+#include "paxos.h"
 
 #define sp ' '
 
@@ -27,9 +28,11 @@ public:
         log_file_fp.open(log_file_name, std::ios::binary);
     }
 
-    void write_line()
+    template <typename T>
+    void write_line(T datum)
     {
         m.lock();
+        log_file_fp << "n_a:" << sp << datum.n_a << sp << "n_p:" << sp << datum.n_p << sp << "status:" << sp << datum.status << sp << "v_a:" << datum.v_a.data << "\n";
         m.unlock();
         flush_log();
     }
