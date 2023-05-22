@@ -24,7 +24,7 @@ void starter()
         seq = r % maxseq;
         j = r % npaxos;
         std::string rs = std::to_string(r);
-        v = PaxosOp(rs.c_str(), rs.size());
+        v = PaxosOp(rs.c_str(), rs.size(), rand());
         t.pxa[j]->Start(seq, v);
     }
     {
@@ -77,19 +77,21 @@ int main()
         {
             int minimum = t.pxa[i]->Min();
             int maximum = t.pxa[i]->Max();
+            auto val = t.pxa[i]->Status(seq);
+            Fate stat = val.first;
             if (seq < minimum)
             {
-                assert(t.pxa[i]->Status(seq).first == Forgotten);
+                assert(stat == Forgotten);
             }
 
             else if (seq > maximum)
             {
-                assert(t.pxa[i]->Status(seq).first == Forgotten);
+                assert(stat == Forgotten);
             }
 
             else
             {
-                assert(t.pxa[i]->Status(seq).first != Forgotten);
+                assert(stat != Forgotten);
             }
         }
     }

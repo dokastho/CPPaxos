@@ -17,13 +17,13 @@ int main()
 
     t.Sleep(MS(200));
 
-    PaxosOp v = PaxosOp("0x1", 3);
+    PaxosOp v = PaxosOp("0x1", 3, rand());
     t.pxa[1]->Start(1, v);
     t.waitmajority(1, {v});
 
     Paxos *late = new Paxos(0, "output0.out", t.hosts);
     t.pxa[0] = late;
-    t.pxa[0]->Start(1, PaxosOp("0x2", 3));
+    t.pxa[0]->Start(1, PaxosOp("0x2", 3, rand()));
 
     t.waitn(1, 4, {v});
 

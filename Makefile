@@ -23,7 +23,7 @@ debug: CXXFLAGS += -g3 -DDEBUG
 debug: clean all
 
 # highest target; sews together all objects into executable
-all: $(LIB) test_basic test_endpoint test_deaf test_min test_forget test_many_forget test_many test_old
+all: $(LIB) test_many_forget test_forget test_endpoint test_basic test_deaf test_min  test_many test_old
 
 final: clean $(LIB)
 	ln -f $(LIB) $(SO_PATH)

@@ -18,7 +18,7 @@ int main()
     for (int seq = 0; seq < niter; seq++)
     {
         std::string val = std::to_string((start + seq));
-        PaxosOp po = PaxosOp(val.c_str(), val.size());
+        PaxosOp po = PaxosOp(val.c_str(), val.size(), rand());
         t.pxa[rand() % npaxos]->Start(seq, po);
         seeds.push_back(po.seed);
     }
@@ -26,7 +26,7 @@ int main()
     for (int seq = 0; seq < niter; seq++)
     {
         std::string val = std::to_string((start + seq));
-        PaxosOp wanted = PaxosOp(val.c_str(), val.size());
+        PaxosOp wanted = PaxosOp(val.c_str(), val.size(), rand());
         wanted.seed = seeds[seq];
         int count = 0;
         while (t.ndecided(seq, {wanted}) < npaxos)

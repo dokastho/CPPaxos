@@ -21,15 +21,14 @@ struct PaxosOp
     PaxosOp()
     {
         memset(this->data, '\0', PAXOS_OP_SIZE);
-        seed = rand();
     }
 
     template <typename T>
-    PaxosOp(T datum, size_t len)
+    PaxosOp(T datum, size_t len, int seed)
     {
         memset(this->data, '\0', PAXOS_OP_SIZE);
         memcpy(this->data, datum, len);
-        seed = rand();
+        this->seed = seed;
     }
 
     bool operator==(PaxosOp &rhs)

@@ -13,10 +13,10 @@ int main()
 
     std::cout << "Test: Deaf proposer ..." << std::endl;
 
-    PaxosOp val1 = PaxosOp("hello", 5);
-    PaxosOp val2 = PaxosOp("goodbye", 7);
-    PaxosOp val3 = PaxosOp("xxx", 3);
-    PaxosOp val4 = PaxosOp("yyy", 3);
+    PaxosOp val1 = PaxosOp("hello", 5, rand());
+    PaxosOp val2 = PaxosOp("goodbye", 7, rand());
+    PaxosOp val3 = PaxosOp("xxx", 3, rand());
+    PaxosOp val4 = PaxosOp("yyy", 3, rand());
     
     t.pxa[0]->Start(0, val1);
     t.waitn(0, npaxos, {val1});

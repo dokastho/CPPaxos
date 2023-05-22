@@ -48,7 +48,7 @@ void Paxos::Deafen()
 
 void Paxos::Start(int seq, PaxosOp v)
 {
-    bool majority_accept = false, zero_replies = false, retry = false;
+    bool majority_accept = false, zero_replies = false;
     std::vector<int> statuses;
 
     update_max_seq(seq);
@@ -56,13 +56,6 @@ void Paxos::Start(int seq, PaxosOp v)
     int n = get_max_n();
     while (true)
     {
-        if (retry)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            retry = false;
-        }
-        n++;
-
         auto p_replies = prepare_phase(seq, n, v);
 
         statuses.clear();
@@ -87,7 +80,7 @@ void Paxos::Start(int seq, PaxosOp v)
         // forget?
         if (!majority_accept && !zero_replies)
         {
-            retry = true;
+            n++;
             continue;
         }
 
@@ -123,7 +116,7 @@ void Paxos::Start(int seq, PaxosOp v)
             // forget?
             if (!majority_accept && !zero_replies)
             {
-                retry = true;
+                n++;
                 continue;
             }
         }

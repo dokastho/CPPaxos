@@ -9,24 +9,49 @@ int main()
 {
     const int npaxos = 3;
     Testing t(npaxos);
-
-    std::cout << "Test: Single proposer ..." << std::endl;
-
     drpc_client c;
-    drpc_host dh{
-        "localhost",
-        TESTING_START_PORT + 1
-    };
 
-    PaxosOp preq("foobar", 6);
-    PaxosOp prep;
+    {
+        std::cout << "Test: Paxos from endpoint ..." << std::endl;
 
-    rpc_arg_wrapper req{(void*)&preq, sizeof(PaxosOp)};
-    rpc_arg_wrapper rep{(void*)&prep, sizeof(PaxosOp)};
+        drpc_host dh{
+            "localhost",
+            TESTING_START_PORT + 1};
 
-    c.Call(dh, "Paxos", &req, &rep);
+        PaxosOp preq("foobar", 6, rand());
+        PaxosOp prep;
 
-    t.waitmajority(0, {preq});
+        rpc_arg_wrapper req{(void *)&preq, sizeof(PaxosOp)};
+        rpc_arg_wrapper rep{(void *)&prep, sizeof(PaxosOp)};
+
+        c.Call(dh, "Paxos", &req, &rep);
+
+        t.waitmajority(0, {preq});
+    }
+    std::cout << "... Passed" << std::endl;
+
+    {
+        std::cout << "Test: Lots of paxos from endpoint ..." << std::endl;
+
+        size_t count = 100;
+
+        for (size_t i = 1; i < count; i++)
+        {
+            drpc_host dh{
+                "localhost",
+                (short)(TESTING_START_PORT + (rand() % npaxos))};
+
+            PaxosOp preq("foobar", 6, rand());
+            PaxosOp prep;
+
+            rpc_arg_wrapper req{(void *)&preq, sizeof(PaxosOp)};
+            rpc_arg_wrapper rep{(void *)&prep, sizeof(PaxosOp)};
+
+            c.Call(dh, "Paxos", &req, &rep);
+
+            t.waitmajority((int)i, {preq});
+        }
+    }
 
     std::cout << "... Passed" << std::endl;
 
