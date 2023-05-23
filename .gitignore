@@ -70,3 +70,4 @@ test_many_forget
 test_old
 test_partition
 test_endpoint
+paxos_server
