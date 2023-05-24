@@ -9,7 +9,7 @@
 #define Reject 1
 #define Err 2
 
-#define PAXOS_OP_SIZE 256
+#define PAXOS_OP_SIZE 512
 
 typedef int Fate;
 
