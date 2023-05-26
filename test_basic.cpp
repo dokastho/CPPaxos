@@ -12,7 +12,7 @@ int main()
 
     std::cout << "Test: Single proposer ..." << std::endl;
 
-    PaxosOp val1 = PaxosOp("hello", strlen("hello"), rand());
+    PaxosOp val1 = PaxosOp(0, "hello", strlen("hello"), rand());
     t.pxa[0]->Start(0, val1);
     t.waitn(0, npaxos, {val1});
 
@@ -20,7 +20,7 @@ int main()
 
     std::cout << "Test: Many proposers, same value ..." << std::endl;
 
-    PaxosOp val2 = PaxosOp("077", 3, rand());
+    PaxosOp val2 = PaxosOp(1, "077", 3, rand());
     for (int i = 0; i < npaxos; i++)
     {
         t.pxa[i]->Start(1, val2);
@@ -31,11 +31,11 @@ int main()
 
     std::cout << "Test: Out-of-order instances ..." << std::endl;
     
-    PaxosOp val3 = PaxosOp("300", 3, rand());
-    PaxosOp val4 = PaxosOp("400", 3, rand());
-    PaxosOp val5 = PaxosOp("500", 3, rand());
-    PaxosOp val6 = PaxosOp("600", 3, rand());
-    PaxosOp val7 = PaxosOp("700", 3, rand());
+    PaxosOp val3 = PaxosOp(2, "300", 3, rand());
+    PaxosOp val4 = PaxosOp(3, "400", 3, rand());
+    PaxosOp val5 = PaxosOp(4, "500", 3, rand());
+    PaxosOp val6 = PaxosOp(5, "600", 3, rand());
+    PaxosOp val7 = PaxosOp(6, "700", 3, rand());
 
     t.pxa[0]->Start(7, val7);
 	t.pxa[0]->Start(6, val6);

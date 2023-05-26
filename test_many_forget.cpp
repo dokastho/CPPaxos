@@ -24,7 +24,7 @@ void starter()
         seq = r % maxseq;
         j = r % npaxos;
         std::string rs = std::to_string(r);
-        v = PaxosOp(rs.c_str(), rs.size(), rand());
+        v = PaxosOp((int)i, rs.c_str(), rs.size(), rand());
         t.pxa[j]->Start(seq, v);
     }
     {

@@ -6,7 +6,7 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
     PaxosOp *p = (PaxosOp *)m.req->args;
     PaxosOp *r = (PaxosOp *)m.rep->args;
 
-    int seq = px->Max() + 1;
+    int seq = p->seq;
 
     auto val = px->Status(seq);
     Fate stat = val.first;

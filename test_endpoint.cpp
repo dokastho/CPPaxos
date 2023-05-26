@@ -18,7 +18,7 @@ int main()
             "localhost",
             TESTING_START_PORT + 1};
 
-        PaxosOp preq("foobar", 6, rand());
+        PaxosOp preq(0, "foobar", 6, rand());
         PaxosOp prep;
 
         rpc_arg_wrapper req{(void *)&preq, sizeof(PaxosOp)};
@@ -41,7 +41,7 @@ int main()
                 "localhost",
                 (short)(TESTING_START_PORT + (rand() % npaxos))};
 
-            PaxosOp preq("foobar", 6, rand());
+            PaxosOp preq((int)i, "foobar", 6, rand());
             PaxosOp prep;
 
             rpc_arg_wrapper req{(void *)&preq, sizeof(PaxosOp)};

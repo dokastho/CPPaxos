@@ -14,11 +14,11 @@ int main()
 
     Testing t(npaxos);
 
-    PaxosOp val0 = PaxosOp("0x0", 3, rand());
-    PaxosOp val1 = PaxosOp("0x1", 3, rand());
-    PaxosOp val2 = PaxosOp("0x2", 3, rand());
-    PaxosOp val6 = PaxosOp("0x6", 3, rand());
-    PaxosOp val7 = PaxosOp("0x7", 3, rand());
+    PaxosOp val0 = PaxosOp(0, "0x0", 3, rand());
+    PaxosOp val1 = PaxosOp(1, "0x1", 3, rand());
+    PaxosOp val2 = PaxosOp(2, "0x2", 3, rand());
+    PaxosOp val6 = PaxosOp(3, "0x6", 3, rand());
+    PaxosOp val7 = PaxosOp(4, "0x7", 3, rand());
 
     t.pxa[0]->Start(0, val0);
     t.pxa[1]->Start(1, val1);

@@ -16,6 +16,7 @@ typedef int Fate;
 struct PaxosOp
 {
     int seed;
+    int seq;
     uint8_t data[PAXOS_OP_SIZE];
 
     PaxosOp()
@@ -24,11 +25,12 @@ struct PaxosOp
     }
 
     template <typename T>
-    PaxosOp(T datum, size_t len, int seed)
+    PaxosOp(int seq, T datum, size_t len, int seed)
     {
         memset(this->data, '\0', PAXOS_OP_SIZE);
         memcpy(this->data, datum, len);
         this->seed = seed;
+        this->seq = seq;
     }
 
     bool operator==(PaxosOp &rhs)
