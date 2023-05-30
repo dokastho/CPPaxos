@@ -17,6 +17,7 @@ struct PaxosOp
 {
     int seed;
     int seq;
+    int err;
     uint8_t data[PAXOS_OP_SIZE];
 
     PaxosOp()

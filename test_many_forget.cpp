@@ -86,7 +86,7 @@ int main()
 
             else if (seq > maximum)
             {
-                assert(stat == Forgotten);
+                assert(stat == Pending);
             }
 
             else

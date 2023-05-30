@@ -11,7 +11,13 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
     auto val = px->Status(seq);
     Fate stat = val.first;
 
-    if (stat != Decided)
+    if (stat == Forgotten)
+    {
+        *r = val.second;
+        return;
+    }
+
+    if (stat == Pending)
     {
         px->Start(seq, *p);
     }

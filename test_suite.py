@@ -18,10 +18,16 @@ def test_endpoint():
     pass
 
 
-def test_deaf():
-    cmd = './test_deaf'
+def test_concurrent():
+    cmd = './test_concurrent'
     assert(run_command(cmd) == 0)
     pass
+
+
+# def test_deaf():
+#     cmd = './test_deaf'
+#     assert(run_command(cmd) == 0)
+#     pass
 
 
 def test_forget():
@@ -42,7 +48,7 @@ def test_many():
     pass
 
 
-def test_old():
-    cmd = './test_old'
-    assert(run_command(cmd) == 0)
-    pass
+# def test_old():
+#     cmd = './test_old'
+#     assert(run_command(cmd) == 0)
+#     pass

@@ -157,7 +157,7 @@ std::pair<Fate, PaxosOp> Paxos::Status(int seq)
     }
     else if (seq > get_max_seq())
     {
-        return {Forgotten, PaxosOp()};
+        return {Pending, PaxosOp()};
     }
     else
     {
@@ -217,7 +217,15 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, PaxosOp v)
         else
         {
             drpc_host h = peers[p];
-            drpc_agent->Call(h, "Prepare", &req, &rep);
+
+            while (reply.err == Err)
+            {
+                int err = drpc_agent->Call(h, "Prepare", &req, &rep);
+                if (err == -1)
+                {
+                    break;
+                }
+            }
         }
 
         // efficiency
@@ -297,7 +305,15 @@ std::pair<std::vector<AcceptReply>, PaxosOp> Paxos::accept_phase(int seq, int n,
         else
         {
             drpc_host h = peers[p];
-            drpc_agent->Call(h, "Accept", &req, &rep);
+
+            while (reply.err == Err)
+            {
+                int err = drpc_agent->Call(h, "Accept", &req, &rep);
+                if (err == -1)
+                {
+                    break;
+                }
+            }
         }
 
         // efficiency
@@ -351,7 +367,15 @@ std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, PaxosOp v)
         else
         {
             drpc_host h = peers[p];
-            drpc_agent->Call(h, "Learn", &req, &rep);
+
+            while (reply.err == Err)
+            {
+                int err = drpc_agent->Call(h, "Learn", &req, &rep);
+                if (err == -1)
+                {
+                    break;
+                }
+            }
         }
         // save reply
         replies.push_back(reply);
@@ -441,16 +465,6 @@ void Paxos::set_max_done(int val)
 {
     mu.lock();
     max_done = val;
-    for (auto it = log.begin(); it != log.end(); it++)
-    {
-        int seq = it->first;
-        if (seq <= val)
-        {
-            // it->second.status = Forgotten
-            log[seq] = it->second;
-        }
-    }
-    // print_log();
     mu.unlock();
 }
 

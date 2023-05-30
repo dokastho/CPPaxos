@@ -23,7 +23,7 @@ debug: CXXFLAGS += -g3 -DDEBUG
 debug: clean all
 
 # highest target; sews together all objects into executable
-all: $(LIB) test_many_forget test_forget test_endpoint test_basic test_deaf test_min test_many test_old paxos_server
+all: $(LIB) test_many_forget test_forget test_endpoint test_concurrent test_basic test_deaf test_min test_many test_old paxos_server
 
 final: clean $(LIB)
 	ln -f $(LIB) $(SO_PATH)
@@ -34,12 +34,18 @@ $(LIB): $(OBJECTS)
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLE) $(TESTS) $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE) *.out
 
+headers:
+	cp ../drpc/drpc.h .
+
 # test1: test1.cpp $(LIB)
 # 	$(CXX) $(CXXFLAGS) -o $@ $^
 test_basic: test_basic.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 test_endpoint: test_endpoint.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test_concurrent: test_concurrent.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 test_deaf: test_deaf.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
