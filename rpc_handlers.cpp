@@ -14,6 +14,7 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
     if (stat == Forgotten)
     {
         *r = val.second;
+        r->err = OK;
         return;
     }
 
@@ -34,6 +35,7 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
 
     px->Done(seq);
     *r = val.second;
+    r->err = OK;
 }
 
 void Paxos::Prepare(Paxos *px, drpc_msg &m)
