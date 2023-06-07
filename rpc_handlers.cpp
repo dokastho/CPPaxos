@@ -11,16 +11,24 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
     auto val = px->Status(seq);
     Fate stat = val.first;
 
-    if (stat == Forgotten)
+    // return value if decided
+    if (stat == Decided)
     {
         *r = val.second;
         r->err = OK;
         return;
     }
 
-    if (stat == Pending)
+    // start if the slot is pending on op
+    else if (stat == Pending)
     {
         px->Start(seq, *p);
+    }
+
+    // return err if forgotten
+    else
+    {
+        return;
     }
     val = px->Status(seq);
     // stat = val.first;

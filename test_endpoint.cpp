@@ -24,7 +24,7 @@ void make_paxos_request(int seq)
 {
     drpc_host dh{
         "localhost",
-        TESTING_START_PORT + 1};
+        TESTING_START_PORT + 2};
 
     // advance seq until req is returned
     while (true)
@@ -65,7 +65,7 @@ int main()
 
         drpc_host dh{
             "localhost",
-            TESTING_START_PORT + 1};
+            TESTING_START_PORT};
 
         PaxosOp preq(SEQ, "foobar", 6, rand());
         PaxosOp prep;
@@ -97,7 +97,7 @@ int main()
         {
             drpc_host dh{
                 "localhost",
-                (short)(TESTING_START_PORT + (rand() % npaxos))};
+                (short)(TESTING_START_PORT + 1)};
 
             PaxosOp preq((int)i, "foobar", 6, rand());
             PaxosOp prep;

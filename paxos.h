@@ -14,7 +14,7 @@
 #define accept "Accept"
 #define learn "Learn"
 
-#define RPC_TIMEOUT 200 // in ms
+#define RPC_TIMEOUT 500 // in ms
 
 const Fate Decided = 0;
 const Fate Pending = 1;
