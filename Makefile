@@ -15,7 +15,7 @@ LIB = paxos.so
 RPC_LIB = drpc.so
 
 #Default Flags
-CXXFLAGS = -std=c++14 -Wconversion -Wall -Werror -Wextra -pedantic
+CXXFLAGS = -std=c++14 -Wconversion -Wall -Werror -Wextra -pedantic -pthread
 
 # make debug - will compile "all" with $(CXXFLAGS) and the -g flag
 #              also defines DEBUG so that "#ifdef DEBUG /*...*/ #endif" works
@@ -29,7 +29,7 @@ final: clean $(LIB)
 	ln -f $(LIB) $(SO_PATH)
 
 $(LIB): $(OBJECTS)
-	$(CXX)  $(CXXFLAGS) $(OBJECTS)  -o  $(LIB)  -shared
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o  $(LIB) -shared
 
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLE) $(TESTS) $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE) *.out

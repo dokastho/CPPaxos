@@ -25,7 +25,17 @@ public:
     Logger(std::string log_file_name) : log_file_name(log_file_name)
     {
         // open file stream
-        log_file_fp.open(log_file_name, std::ios::binary);
+        std::stringstream ss;
+        ss << "~/" << log_file_name;
+        log_file_fp.open(ss.str(), std::ios::binary);
+    }
+
+    void log_generic(std::string s)
+    {
+        m.lock();
+        log_file_fp << s << "\n";
+        m.unlock();
+        flush_log();
     }
 
     template <typename T>

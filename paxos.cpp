@@ -19,7 +19,7 @@ Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &pee
     drpc_engine->publish_endpoint("Paxos", (void *)Paxos::paxos_rpc);
 
     std::thread t(&drpc_server::run_server, drpc_engine);
-    t.detach();
+    drpc_engine_thread = std::move(t);
 
     max_done = -1;
     for (int i = 0; i < (int)peers.size(); i++)
@@ -33,8 +33,8 @@ Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &pee
 
 Paxos::~Paxos()
 {
-    drpc_engine->kill();
     delete drpc_engine;
+    drpc_engine_thread.join();
     delete drpc_agent;
     delete logger;
 }
@@ -403,6 +403,9 @@ void Paxos::update_min()
     {
         if (key <= minimum)
         {
+            std::stringstream ss;
+            ss << "forgotten seq " << key << " value " << log[key].v_a.data << " with seq " << log[key].v_a.seq;
+            logger->log_generic(ss.str());
             log.erase(key);
         }
     }

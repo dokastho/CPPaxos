@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <mutex>
+#include <thread>
 
 #include "rpcs.h"
 #include "Logger.h"
@@ -36,6 +37,7 @@ private:
     std::map<std::string, int> peer_max_done;
     std::vector<drpc_host> peers;
     drpc_server *drpc_engine;
+    std::thread drpc_engine_thread;
     drpc_client *drpc_agent;
     int me; // index in peers
     int max_seq;
