@@ -23,50 +23,54 @@ debug: CXXFLAGS += -g3 -DDEBUG
 debug: clean all
 
 # highest target; sews together all objects into executable
-all: $(LIB) test_many_forget test_forget test_endpoint test_concurrent test_basic test_deaf test_min test_many test_old paxos_server
+all: $(LIB) test_many_clients test_many_forget test_forget test_endpoint test_concurrent test_basic test_deaf test_min test_many test_old paxos_server
 
 final: clean $(LIB)
 	ln -f $(LIB) $(SO_PATH)
 
 $(LIB): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o  $(LIB) -shared
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(LIB) $(SO_PATH)/$(RPC_LIB) -shared
 
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLE) $(TESTS) $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE) *.out
 
 headers:
 	cp ../drpc/drpc.h .
+	cp ../drpc/Channel.h .
 
 # test1: test1.cpp $(LIB)
 # 	$(CXX) $(CXXFLAGS) -o $@ $^
-test_basic: test_basic.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_basic: test_basic.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-test_endpoint: test_endpoint.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_endpoint: test_endpoint.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-test_concurrent: test_concurrent.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_concurrent: test_concurrent.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-test_deaf: test_deaf.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_deaf: test_deaf.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-test_min: test_min.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_min: test_min.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-test_forget: test_forget.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_forget: test_forget.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-test_many: test_many.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_many: test_many.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-test_many_forget: test_many_forget.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_many_forget: test_many_forget.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-test_old: test_old.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_many_clients: test_many_clients.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-paxos_server: paxos_server.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
+test_old: test_old.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+paxos_server: paxos_server.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # rule for creating objects

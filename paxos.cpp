@@ -192,13 +192,13 @@ std::vector<PrepareReply> Paxos::prepare_phase(int seq, int n, PaxosOp v)
         }
 
         PrepareArgs args{
-            v,
             seq,
             n,
             get_max_seq(),
             me,
-            get_max_done()};
-        PrepareReply reply;
+            get_max_done(),
+            v};
+        PrepareReply reply{};
         reply.err = Err;
         rpc_arg_wrapper req;
         rpc_arg_wrapper rep;
@@ -280,13 +280,13 @@ std::pair<std::vector<AcceptReply>, PaxosOp> Paxos::accept_phase(int seq, int n,
             break;
         }
         AcceptArgs args{
-            v_prime,
             seq,
             n,
             get_max_seq(),
             me,
-            get_max_done()};
-        AcceptReply reply;
+            get_max_done(),
+            v_prime};
+        AcceptReply reply{};
         reply.err = Err;
         rpc_arg_wrapper req;
         rpc_arg_wrapper rep;
@@ -342,13 +342,13 @@ std::vector<DecidedReply> Paxos::learn_phase(int seq, int n, PaxosOp v)
     for (size_t p = 0; p < n_peers; p++)
     {
         DecidedArgs args{
-            v,
             seq,
             n,
             get_max_seq(),
             me,
-            get_max_done()};
-        DecidedReply reply;
+            get_max_done(),
+            v};
+        DecidedReply reply{};
         reply.err = Err;
         rpc_arg_wrapper req;
         rpc_arg_wrapper rep;

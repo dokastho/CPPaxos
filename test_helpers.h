@@ -7,6 +7,7 @@
 #include <thread>
 #include <sstream>
 #include <string>
+#include <mutex>
 #include "paxos.h"
 
 typedef std::chrono::milliseconds MS;
@@ -27,6 +28,8 @@ std::string PaxosOp_to_string(const PaxosOp &p)
 
 class Testing
 {
+private:
+    std::mutex l;
 public:
     std::vector<drpc_host> hosts;
     std::vector<Paxos *> pxa;
@@ -52,6 +55,13 @@ public:
         {
             delete pxa[i];
         }
+    }
+
+    void print(std::string s)
+    {
+        l.lock();
+        std::cout << s << std::endl;
+        l.unlock();
     }
 
     template <typename T>

@@ -64,6 +64,7 @@ __pycache__/*
 
 # My ignores for this folder only
 drpc.h
+Channel.h
 test_min
 test_forget
 test_many_forget
@@ -71,3 +72,4 @@ test_old
 test_partition
 test_endpoint
 paxos_server
+test_many_clients

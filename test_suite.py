@@ -48,7 +48,7 @@ def test_many():
     pass
 
 
-# def test_old():
-#     cmd = './test_old'
-#     assert(run_command(cmd) == 0)
-#     pass
+def test_many_clients():
+    cmd = './test_many_clients'
+    assert(run_command(cmd) == 0)
+    pass

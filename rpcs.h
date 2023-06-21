@@ -22,13 +22,16 @@ struct PaxosOp
 
     PaxosOp()
     {
-        memset(this->data, '\0', PAXOS_OP_SIZE);
+        seed = 0;
+        seq = 0;
+        err = OK;
+        memset(this, 0, sizeof(PaxosOp));
     }
 
     template <typename T>
     PaxosOp(int seq, T datum, size_t len, int seed)
     {
-        memset(this->data, '\0', PAXOS_OP_SIZE);
+        memset(this, 0, sizeof(PaxosOp));
         memcpy(this->data, datum, len);
         this->seed = seed;
         this->seq = seq;
@@ -47,17 +50,16 @@ struct PaxosOp
 
 struct PrepareArgs
 {
-    PaxosOp v;
     int seq;
     int n;
     int max_seq;
     int id_index;
     int max_done;
+    PaxosOp v;
 };
 
 struct PrepareReply
 {
-    PaxosOp v_a;
     int res;
     int seq;
     int n_a;
@@ -65,16 +67,17 @@ struct PrepareReply
     int id_index;
     int max_done;
     int err;
+    PaxosOp v_a;
 };
 
 struct AcceptArgs
 {
-    PaxosOp v;
     int seq;
     int n;
     int max_seq;
     int id_index;
     int max_done;
+    PaxosOp v;
 };
 
 struct AcceptReply
@@ -90,23 +93,23 @@ struct AcceptReply
 
 struct DecidedArgs
 {
-    PaxosOp v;
     int seq;
     int n;
     int max_seq;
     int id_index;
     int max_done;
+    PaxosOp v;
 };
 
 struct DecidedReply
 {
-    PaxosOp v;
     int res;
     int n;
     int max_seq;
     int id_index;
     int max_done;
     int err;
+    PaxosOp v;
 };
 
 #endif
