@@ -26,7 +26,7 @@ public:
     {
         // open file stream
         std::stringstream ss;
-        ss << "~/" << log_file_name;
+        ss << "/home/dokastho/code/d3b/servers/paxos/" << log_file_name;
         log_file_fp.open(ss.str(), std::ios::binary);
     }
 

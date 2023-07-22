@@ -28,6 +28,10 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
     // return err if forgotten
     else
     {
+        std::stringstream ss;
+        ss << "forgotten seq requested: ";
+        ss << p->data;
+        px->logger->log_generic(ss.str());
         return;
     }
     val = px->Status(seq);

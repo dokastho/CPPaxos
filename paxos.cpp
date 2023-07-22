@@ -11,6 +11,7 @@ Paxos::Paxos(int my_index, std::string log_filename, std::vector<drpc_host> &pee
     drpc_engine = new drpc_server(my_host, this);
     drpc_agent = new drpc_client(RPC_TIMEOUT);
     logger = new Logger(log_filename);
+    logger->log_generic("starting CPPaxos\n");
 
     // register RPC functions
     drpc_engine->publish_endpoint("Prepare", (void *)Paxos::Prepare);
