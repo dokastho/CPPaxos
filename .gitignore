@@ -73,3 +73,4 @@ test_partition
 test_endpoint
 paxos_server
 test_many_clients
+test_duration

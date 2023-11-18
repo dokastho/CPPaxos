@@ -19,7 +19,7 @@
 
 const Fate Decided = 0;
 const Fate Pending = 1;
-const Fate Forgotten = 2;
+const Fate Forgotten = -1;
 
 struct instance_t
 {

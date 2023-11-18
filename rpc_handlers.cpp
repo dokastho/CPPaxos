@@ -23,6 +23,10 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
     else if (stat == Pending)
     {
         px->Start(seq, *p);
+        val = px->Status(seq);
+        *r = val.second;
+        r->err = OK;
+        px->Done(seq);
     }
 
     // return err if forgotten
@@ -32,22 +36,9 @@ void Paxos::paxos_rpc(Paxos *px, drpc_msg &m)
         ss << "forgotten seq requested: ";
         ss << p->data;
         px->logger->log_generic(ss.str());
+        r->err = Forgotten;
         return;
     }
-    val = px->Status(seq);
-    // stat = val.first;
-    int exp_back_ctr = 1;
-    while (stat != Decided)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10 * exp_back_ctr));
-        exp_back_ctr *= 2;
-        val = px->Status(seq);
-        stat = val.first;
-    }
-
-    px->Done(seq);
-    *r = val.second;
-    r->err = OK;
 }
 
 void Paxos::Prepare(Paxos *px, drpc_msg &m)

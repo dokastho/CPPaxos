@@ -23,7 +23,7 @@ debug: CXXFLAGS += -g3 -DDEBUG
 debug: clean all
 
 # highest target; sews together all objects into executable
-all: $(LIB) test_many_clients test_many_forget test_forget test_endpoint test_concurrent test_basic test_deaf test_min test_many test_old paxos_server
+all: $(LIB) test_duration test_many_clients test_many_forget test_forget test_endpoint test_concurrent test_basic test_deaf test_min test_many test_old paxos_server 
 
 final: clean $(LIB)
 	ln -f $(LIB) $(SO_PATH)
@@ -68,6 +68,9 @@ test_many_clients: test_many_clients.cpp $(LIB) $(SO_PATH)/$(RPC_LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 test_old: test_old.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test_duration: test_duration.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 paxos_server: paxos_server.cpp $(LIB) $(SO_PATH)/$(RPC_LIB) 

@@ -52,3 +52,8 @@ def test_many_clients():
     cmd = './test_many_clients'
     assert(run_command(cmd) == 0)
     pass
+
+def test_duration():
+    cmd = './test_duration'
+    assert(run_command(cmd) == 0)
+    pass
