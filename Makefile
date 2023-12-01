@@ -56,4 +56,4 @@ $(TESTS): $(BINDIR)/% : $(SRCDIR)/%.cpp $(SO_PATH)/$(LIB) $(SO_PATH)/$(RPC_LIB)
 	$(CXX) $(CXXFLAGS) -lm -I. -o $@ $^
 
 paxos_server: $(SRCDIR)/paxos_server.cpp $(SO_PATH)/$(LIB) $(SO_PATH)/$(RPC_LIB) 
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/$@ $^
