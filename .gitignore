@@ -60,7 +60,7 @@ test_unreliable
 test_performance
 test_deaf
 .pytest_cache/*
-__pycache__/*
+__pycache__
 
 # My ignores for this folder only
 drpc.h
